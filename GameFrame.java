@@ -9,13 +9,23 @@ public class GameFrame extends JFrame {
 
     private int width,height;
     private Container contentPane;
-    private Player me;
+    private Player me,other;
     private Timer animationTimer;
     private boolean up,down,left,right;
+    private Image cap1,cap2,cap3,cap4,cap5,mySprite,otherSprite,map;
+    private DrawingComponent drawingComponent;
 
     public GameFrame(int w,int h){
         width=w;
         height=h;
+        up=false;
+        down=false;
+        left=false;
+        right=false;
+
+        cap1=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/cap_1.png"));
+        cap5=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/cap_5.png"));
+        map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
     }
 
     public void setUpGUI(){
@@ -23,7 +33,11 @@ public class GameFrame extends JFrame {
         this.setTitle("");
         contentPane.setPreferredSize(new Dimension(width,height));
         createPlayer();
-        //make image of player visible on screen
+        drawingComponent=new DrawingComponent();
+        contentPane.add(drawingComponent);
+        //make code that assigns sprites depending on what the player and opponent chose. something with arrays
+        mySprite=cap1;
+        otherSprite=cap5;
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
         this.setVisible(true);
@@ -32,8 +46,18 @@ public class GameFrame extends JFrame {
         setUpKeyListener();
     }
 
+    private class DrawingComponent extends JComponent{
+        protected void paintComponent(Graphics graphics){
+            Graphics2D g2d=(Graphics2D) graphics;
+            g2d.drawImage(map,0,0,null);
+            g2d.drawImage(mySprite,me.getX(),me.getY(),null);
+            g2d.drawImage(otherSprite,other.getX(), other.getY(),null);
+        }
+    }
+
     private void createPlayer(){
         me=new Player(100,400,1);
+        other=new Player(400,400,5);
     }
 
     private void setUpTimer(){
@@ -41,7 +65,7 @@ public class GameFrame extends JFrame {
         ActionListener actionListener=new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                double speed=5;
+                int speed=5;
                 if (up) {
                     me.moveV(-speed);
                 }
@@ -54,7 +78,9 @@ public class GameFrame extends JFrame {
                 if(right){
                     me.moveH(speed);
                 }
-                //equivalent of repaint
+
+                drawingComponent.repaint();
+                System.out.println(me.getY());
             }
         };
         animationTimer=new Timer(interval,actionListener);

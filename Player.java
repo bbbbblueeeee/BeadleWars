@@ -1,27 +1,26 @@
 public class Player {
 
-    private double x,y;
-    private int colorNum;
+    private int x,y,colorNum;
 
-    public Player(double a,double b,int c){
+    public Player(int a,int b,int c){
         x=a;
         y=b;
         colorNum=c;
     }
 
-    public void moveH(double n){
+    public void moveH(int n){
         x+=n;
     }
 
-    public void moveV(double n){
+    public void moveV(int n){
         y+=n;
     }
 
-    public void setX(double n){
+    public void setX(int n){
         x=n;
     }
 
-    public void setY(double n){
+    public void setY(int n){
         y=n;
     }
 
@@ -29,11 +28,11 @@ public class Player {
         colorNum=n;
     }
 
-    public double getX(){
+    public int getX(){
         return x;
     }
 
-    public double getY(){
+    public int getY(){
         return y;
     }
 }
