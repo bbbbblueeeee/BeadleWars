@@ -1,3 +1,4 @@
+import javax.print.attribute.standard.DialogOwner;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -42,8 +43,8 @@ public class GameFrame extends JFrame {
         this.pack();
         this.setVisible(true);
 
-        setUpTimer();
-        setUpKeyListener();
+        this.setUpTimer();
+        this.setUpKeyListener();
     }
 
     private class DrawingComponent extends JComponent{
@@ -78,9 +79,8 @@ public class GameFrame extends JFrame {
                 if(right){
                     me.moveH(speed);
                 }
-
                 drawingComponent.repaint();
-                System.out.println(me.getY());
+                System.out.println(me.getX()+","+me.getY());
             }
         };
         animationTimer=new Timer(interval,actionListener);
@@ -98,43 +98,31 @@ public class GameFrame extends JFrame {
             public void keyPressed(KeyEvent e) {
                 int keyCode=e.getKeyCode();
 
-                switch (keyCode){
-                    case KeyEvent.VK_UP:
-                        up=true;
-                        break;
-                    case KeyEvent.VK_DOWN:
-                        down=true;
-                        break;
-                    case KeyEvent.VK_LEFT:
-                        left=true;
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        right=true;
-                        break;
-                }
+                if (keyCode==KeyEvent.VK_UP || keyCode==KeyEvent.VK_W)
+                    up=true;
+                else if (keyCode==KeyEvent.VK_DOWN || keyCode==KeyEvent.VK_S)
+                    down=true;
+                else if(keyCode==KeyEvent.VK_LEFT || keyCode==KeyEvent.VK_A)
+                    left=true;
+                else if(keyCode==KeyEvent.VK_RIGHT ||keyCode==KeyEvent.VK_D)
+                    right=true;
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
                 int keyCode=e.getKeyCode();
 
-                switch (keyCode){
-                    case KeyEvent.VK_UP:
-                        up=false;
-                        break;
-                    case KeyEvent.VK_DOWN:
-                        down=false;
-                        break;
-                    case KeyEvent.VK_LEFT:
-                        left=false;
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        right=false;
-                        break;
-                }
+                if (keyCode==KeyEvent.VK_UP || keyCode==KeyEvent.VK_W)
+                    up=false;
+                else if (keyCode==KeyEvent.VK_DOWN || keyCode==KeyEvent.VK_S)
+                    down=false;
+                else if(keyCode==KeyEvent.VK_LEFT || keyCode==KeyEvent.VK_A)
+                    left=false;
+                else if(keyCode==KeyEvent.VK_RIGHT ||keyCode==KeyEvent.VK_D)
+                    right=false;
             }
         };
-        contentPane.addKeyListener(keyListener);
+        this.addKeyListener(keyListener);
         contentPane.setFocusable(true);
     }
 }
