@@ -21,7 +21,7 @@ public class GameFrame extends JFrame {
     private Player me,other;
     private Timer animationTimer;
     private boolean up,down,left,right;
-    private Image cap1,cap2,cap3,cap4,cap5,mySprite,otherSprite,map;
+    private Image cap_red_u,cap_red_d,cap_red_l,cap_red_r,cap2,cap3,cap4,cap_blue_u,cap_blue_d,cap_blue_l,cap_blue_r,mySprite,otherSprite,map;
     private DrawingComponent drawingComponent;
     private Socket socket;
     private ReadFromServer rfsRunnable;
@@ -36,8 +36,14 @@ public class GameFrame extends JFrame {
         left=false;
         right=false;
 
-        cap1=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_1.png"));
-        cap5=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_5.png"));
+        cap_red_u=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_red_u.png"));
+        cap_red_d=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_red_d.png"));
+        cap_red_l=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_red_l.png"));
+        cap_red_r=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_red_r.png"));
+        cap_blue_u=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_blue_u.png"));
+        cap_blue_d=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_blue_d.png"));
+        cap_blue_l=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_blue_l.png"));
+        cap_blue_r=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_blue_r.png"));
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
     }
 
@@ -50,11 +56,11 @@ public class GameFrame extends JFrame {
         contentPane.add(drawingComponent);
         //make code that assigns sprites depending on what the player and opponent chose. something with arrays
         if (playerID == 1) {
-            mySprite = cap1;
-            otherSprite = cap5;
+            mySprite = cap_red_u;
+            otherSprite = cap_blue_u;
         } else {
-            mySprite = cap5;
-            otherSprite = cap1;
+            mySprite = cap_blue_u;
+            otherSprite = cap_red_u;
         }
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
@@ -162,7 +168,7 @@ public class GameFrame extends JFrame {
                 if (down) {
                     me.moveV(speed);
                     if (!isOnPath(me.getX(), me.getY())) {
-                        me.set-X(me.getPrevX());
+                        me.setX(me.getPrevX());
                         me.setY(me.getPrevY());
                     }
                 }
@@ -203,19 +209,31 @@ public class GameFrame extends JFrame {
 
                 if (keyCode==KeyEvent.VK_UP || keyCode==KeyEvent.VK_W) {
                     up = true;
-                    me.lookUp();
+                    if (playerID == 1)
+                        mySprite=cap_red_u;
+                    else if (playerID == 2)
+                        mySprite=cap_blue_u;
                 }
                 else if (keyCode==KeyEvent.VK_DOWN || keyCode==KeyEvent.VK_S) {
                     down = true;
-                    me.lookDown();
+                    if (playerID == 1)
+                        mySprite=cap_red_d;
+                    else if (playerID == 2)
+                        mySprite=cap_blue_d;
                 }
                 else if(keyCode==KeyEvent.VK_LEFT || keyCode==KeyEvent.VK_A) {
                     left = true;
-                    me.lookLeft();
+                    if (playerID == 1)
+                        mySprite=cap_red_l;
+                    else if (playerID == 2)
+                        mySprite=cap_blue_l;
                 }
                 else if(keyCode==KeyEvent.VK_RIGHT ||keyCode==KeyEvent.VK_D) {
                     right = true;
-                    me.lookRight();
+                    if (playerID == 1)
+                        mySprite=cap_red_r;
+                    else if (playerID == 2)
+                        mySprite=cap_blue_r;
                 }
             }
 
