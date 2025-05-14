@@ -21,12 +21,13 @@ public class GameFrame extends JFrame {
     private Player me,other;
     private Timer animationTimer;
     private boolean up,down,left,right;
-    private Image cap_red_u,cap_red_d,cap_red_l,cap_red_r,cap2,cap3,cap4,cap_blue_u,cap_blue_d,cap_blue_l,cap_blue_r,mySprite,otherSprite,map;
+    private Image mySprite,otherSprite,map;
     private DrawingComponent drawingComponent;
     private Socket socket;
     private ReadFromServer rfsRunnable;
     private WriteToServer wtsRunnable;
-    private Rectangle r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14;
+    private Rectangle r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,ep1,ep2,ep3,ep4,ep5,ep6,ep7;
+    private String myIconText, otherIconText;
 
     public GameFrame(int w,int h){
         width=w;
@@ -36,14 +37,6 @@ public class GameFrame extends JFrame {
         left=false;
         right=false;
 
-        cap_red_u=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_red_u.png"));
-        cap_red_d=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_red_d.png"));
-        cap_red_l=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_red_l.png"));
-        cap_red_r=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_red_r.png"));
-        cap_blue_u=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_blue_u.png"));
-        cap_blue_d=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_blue_d.png"));
-        cap_blue_l=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_blue_l.png"));
-        cap_blue_r=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_blue_r.png"));
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
     }
 
@@ -55,13 +48,22 @@ public class GameFrame extends JFrame {
         drawingComponent=new DrawingComponent();
         contentPane.add(drawingComponent);
         //make code that assigns sprites depending on what the player and opponent chose. something with arrays
-        if (playerID == 1) {
-            mySprite = cap_red_u;
-            otherSprite = cap_blue_u;
-        } else {
-            mySprite = cap_blue_u;
-            otherSprite = cap_red_u;
-        }
+        myIconText = "/assets/player_"+me.getColorNum()+"_"+me.direction()+".png";
+        otherIconText="/assets/player_"+other.getColorNum()+"_"+other.direction()+".png";
+        r1=new Rectangle(191,172,31,390);
+        r2=new Rectangle(191,190,285,31);
+        r3=new Rectangle(191,528,285,34);
+        r4=new Rectangle(444,107,32,547);
+        r5=new Rectangle(444,316,85,32);
+        r6=new Rectangle(409,367,67,32);
+        r7=new Rectangle(444,107,326,31);
+        r8=new Rectangle(444,611,233,31);
+        r9=new Rectangle(703,107,34,330);
+        r10=new Rectangle(703,249,74,32);
+        r11=new Rectangle(703,407,91,30);
+        r12=new Rectangle(644,361,93,31);
+        r13=new Rectangle(644,361,33,338);
+        r14=new Rectangle(644,668,85,31);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
         this.setVisible(true);
@@ -94,7 +96,11 @@ public class GameFrame extends JFrame {
             Graphics2D g2d=(Graphics2D) graphics;
             AffineTransform reset = g2d.getTransform();
             g2d.drawImage(map,0,0,null);
-            g2d.rotate(Math.toRadians(me.getRotation()), me.getX(), me.getY());
+            myIconText = "/assets/player_"+me.getColorNum()+"_"+me.direction()+".png";
+            otherIconText="/assets/player_"+other.getColorNum()+"_"+other.direction()+".png";
+            mySprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource(myIconText));
+            otherSprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource(otherIconText));
+            //g2d.rotate(Math.toRadians(me.getRotation()), me.getX(), me.getY());
             g2d.drawImage(mySprite,me.getX(),me.getY(),null);
             g2d.setTransform(reset);
             g2d.drawImage(otherSprite,other.getX(), other.getY(),null);
@@ -113,43 +119,7 @@ public class GameFrame extends JFrame {
     }
 
     private boolean isOnPath(int x,int y){
-        int w,h;
-        r1=new Rectangle(191,172,31,390);
-        r2=new Rectangle(191,190,285,31);
-        r3=new Rectangle(191,528,285,34);
-        r4=new Rectangle(444,107,32,547);
-        r5=new Rectangle(444,316,85,32);
-        r6=new Rectangle(409,367,67,32);
-        r7=new Rectangle(444,107,326,31);
-        r8=new Rectangle(444,611,233,31);
-        r9=new Rectangle(703,107,34,330);
-        r10=new Rectangle(703,249,74,32);
-        r11=new Rectangle(703,407,91,30);
-        r12=new Rectangle(644,361,93,31);
-        r13=new Rectangle(644,361,33,338);
-        r14=new Rectangle(644,668,85,31);
-
-        if (me.direction()==1) {
-            w=26;
-            h=28;
-        }
-        else if(me.direction()==2){
-            x-=26;
-            y-=28;
-            w=26;
-            h=28;
-        }
-        else if(me.direction()==3){
-            y-=26;
-            w=28;
-            h=26;
-        }
-        else{
-            x-=28;
-            w=28;
-            h=26;
-        }
-        return r1.contains(x,y,w,h) || r2.contains(x,y,w,h) || r3.contains(x,y,w,h) || r4.contains(x,y,w,h) || r5.contains(x,y,w,h) || r6.contains(x,y,w,h) || r7.contains(x,y,w,h) || r8.contains(x,y,w,h) || r9.contains(x,y,w,h) || r10.contains(x,y,w,h) || r11.contains(x,y,w,h) || r12.contains(x,y,w,h) || r13.contains(x,y,w,h) || r14.contains(x,y,w,h);
+        return r1.contains(x,y) || r2.contains(x,y) || r3.contains(x,y) || r4.contains(x,y) || r5.contains(x,y) || r6.contains(x,y) || r7.contains(x,y) || r8.contains(x,y) || r9.contains(x,y) || r10.contains(x,y) || r11.contains(x,y) || r12.contains(x,y) || r13.contains(x,y) || r14.contains(x,y);
     }
 
     private void setUpTimer(){
@@ -209,31 +179,19 @@ public class GameFrame extends JFrame {
 
                 if (keyCode==KeyEvent.VK_UP || keyCode==KeyEvent.VK_W) {
                     up = true;
-                    if (playerID == 1)
-                        mySprite=cap_red_u;
-                    else if (playerID == 2)
-                        mySprite=cap_blue_u;
+                    me.lookUp();
                 }
                 else if (keyCode==KeyEvent.VK_DOWN || keyCode==KeyEvent.VK_S) {
                     down = true;
-                    if (playerID == 1)
-                        mySprite=cap_red_d;
-                    else if (playerID == 2)
-                        mySprite=cap_blue_d;
+                    me.lookDown();
                 }
                 else if(keyCode==KeyEvent.VK_LEFT || keyCode==KeyEvent.VK_A) {
                     left = true;
-                    if (playerID == 1)
-                        mySprite=cap_red_l;
-                    else if (playerID == 2)
-                        mySprite=cap_blue_l;
+                    me.lookLeft();
                 }
                 else if(keyCode==KeyEvent.VK_RIGHT ||keyCode==KeyEvent.VK_D) {
                     right = true;
-                    if (playerID == 1)
-                        mySprite=cap_red_r;
-                    else if (playerID == 2)
-                        mySprite=cap_blue_r;
+                    me.lookRight();
                 }
             }
 

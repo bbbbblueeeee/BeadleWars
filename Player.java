@@ -58,6 +58,10 @@ public class Player {
         colorNum=n;
     }
 
+    public int getColorNum (){
+        return colorNum;
+    }
+
     public int getX(){
         return x;
     }
@@ -74,7 +78,33 @@ public class Player {
         return prevY;
     }
 
-    public int getRotation() {return rotation;}
+    public void lookUp(){
+        faceUp=true;
+        faceDown=false;
+        faceLeft=false;
+        faceRight=false;
+    }
+
+    public void lookDown(){
+        faceUp=false;
+        faceDown=true;
+        faceLeft=false;
+        faceRight=false;
+    }
+
+    public void lookLeft(){
+        faceUp=false;
+        faceDown=false;
+        faceLeft=true;
+        faceRight=false;
+    }
+
+    public void lookRight(){
+        faceUp=false;
+        faceDown=false;
+        faceLeft=false;
+        faceRight=true;
+    }
 
     public boolean isOnMap() {return onMap;}
 
