@@ -1,3 +1,5 @@
+import org.w3c.dom.css.Rect;
+
 import javax.print.attribute.standard.DialogOwner;
 import javax.swing.*;
 import java.awt.*;
@@ -26,7 +28,7 @@ public class GameFrame extends JFrame {
     private Socket socket;
     private ReadFromServer rfsRunnable;
     private WriteToServer wtsRunnable;
-    private Rectangle r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,ep1,ep2,ep3,ep4,ep5,ep6,ep7;
+    private Rectangle[] paths,entryPoints;
     private String myIconText, otherIconText;
 
     public GameFrame(int w,int h){
@@ -36,6 +38,8 @@ public class GameFrame extends JFrame {
         down=false;
         left=false;
         right=false;
+        paths=new Rectangle[14];
+        entryPoints=new Rectangle[8];
 
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
     }
@@ -47,27 +51,35 @@ public class GameFrame extends JFrame {
         createPlayer();
         drawingComponent=new DrawingComponent();
         contentPane.add(drawingComponent);
+        paths[0]=new Rectangle(191,172,31,390);
+        paths[1]=new Rectangle(191,190,285,31);
+        paths[2]=new Rectangle(191,528,285,34);
+        paths[3]=new Rectangle(444,107,32,547);
+        paths[4]=new Rectangle(444,316,85,32);
+        paths[5]=new Rectangle(409,367,67,32);
+        paths[6]=new Rectangle(444,107,326,31);
+        paths[7]=new Rectangle(444,611,233,31);
+        paths[8]=new Rectangle(703,107,34,330);
+        paths[9]=new Rectangle(703,249,74,32);
+        paths[10]=new Rectangle(703,407,91,30);
+        paths[11]=new Rectangle(644,361,93,31);
+        paths[12]=new Rectangle(644,361,33,338);
+        paths[13]=new Rectangle(644,668,85,31);
+        entryPoints[0]= new Rectangle(191,172,31,35); //NBL
+        entryPoints[1]=new Rectangle(494,316,35,32); //D-Shop
+        entryPoints[2]=new Rectangle(409,367,35,32); //Pawra
+        entryPoints[3]=new Rectangle(444,619,32,35); //Gomz Caf
+        entryPoints[4]=new Rectangle(735,107,35,31); //SIC-A
+        entryPoints[5]=new Rectangle(742,249,35,32); //SIC-B
+        entryPoints[6]=new Rectangle(759,407,35,30); //SIC-C
+        entryPoints[7]=new Rectangle(694,668,35,31); //Professors' Building
         //make code that assigns sprites depending on what the player and opponent chose. something with arrays
         myIconText = "/assets/player_"+me.getColorNum()+"_"+me.direction()+".png";
         otherIconText="/assets/player_"+other.getColorNum()+"_"+other.direction()+".png";
-        r1=new Rectangle(191,172,31,390);
-        r2=new Rectangle(191,190,285,31);
-        r3=new Rectangle(191,528,285,34);
-        r4=new Rectangle(444,107,32,547);
-        r5=new Rectangle(444,316,85,32);
-        r6=new Rectangle(409,367,67,32);
-        r7=new Rectangle(444,107,326,31);
-        r8=new Rectangle(444,611,233,31);
-        r9=new Rectangle(703,107,34,330);
-        r10=new Rectangle(703,249,74,32);
-        r11=new Rectangle(703,407,91,30);
-        r12=new Rectangle(644,361,93,31);
-        r13=new Rectangle(644,361,33,338);
-        r14=new Rectangle(644,668,85,31);
+
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
         this.setVisible(true);
-
         this.setUpTimer();
         this.setUpKeyListener();
     }
@@ -119,7 +131,11 @@ public class GameFrame extends JFrame {
     }
 
     private boolean isOnPath(int x,int y){
-        return r1.contains(x,y) || r2.contains(x,y) || r3.contains(x,y) || r4.contains(x,y) || r5.contains(x,y) || r6.contains(x,y) || r7.contains(x,y) || r8.contains(x,y) || r9.contains(x,y) || r10.contains(x,y) || r11.contains(x,y) || r12.contains(x,y) || r13.contains(x,y) || r14.contains(x,y);
+        for (Rectangle path : paths){
+            if(path.contains(x,y))
+                return true;
+        }
+        return false;
     }
 
     private void setUpTimer(){
@@ -177,21 +193,39 @@ public class GameFrame extends JFrame {
             public void keyPressed(KeyEvent e) {
                 int keyCode=e.getKeyCode();
 
-                if (keyCode==KeyEvent.VK_UP || keyCode==KeyEvent.VK_W) {
-                    up = true;
-                    me.lookUp();
+                if(keyCode==KeyEvent.VK_ENTER){
+                    if (me.getCurrentBuilding()==0){
+                        for(int i=0;i<8;i++){
+                            if(entryPoints[i].contains(me.getX(),me.getY()))
+                                me.enterBuilding(playerID,i+1);
+                        }
+                    }
+                    else
+                        me.leaveBuilding();
+                }
+                else if (keyCode==KeyEvent.VK_UP || keyCode==KeyEvent.VK_W) {
+                    if(me.getCurrentBuilding()==0) {
+                        up = true;
+                        me.lookUp();
+                    }
                 }
                 else if (keyCode==KeyEvent.VK_DOWN || keyCode==KeyEvent.VK_S) {
-                    down = true;
-                    me.lookDown();
+                    if(me.getCurrentBuilding()==0) {
+                        down = true;
+                        me.lookDown();
+                    }
                 }
                 else if(keyCode==KeyEvent.VK_LEFT || keyCode==KeyEvent.VK_A) {
-                    left = true;
-                    me.lookLeft();
+                    if(me.getCurrentBuilding()==0) {
+                        left = true;
+                        me.lookLeft();
+                    }
                 }
                 else if(keyCode==KeyEvent.VK_RIGHT ||keyCode==KeyEvent.VK_D) {
-                    right = true;
-                    me.lookRight();
+                    if(me.getCurrentBuilding()==0) {
+                        right = true;
+                        me.lookRight();
+                    }
                 }
             }
 

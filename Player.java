@@ -1,7 +1,7 @@
 public class Player {
 
-    private int x,y,prevX,prevY,colorNum,rotation;
-    private boolean onMap,faceUp,faceDown,faceLeft,faceRight;
+    private int x,y,prevX,prevY,colorNum,currentBuilding;
+    private boolean faceUp,faceDown,faceLeft,faceRight;
 
     public Player(int a,int b,int c,int d){
         x=a;
@@ -9,8 +9,7 @@ public class Player {
         prevX=a;
         prevY=b;
         colorNum=c;
-        rotation = 0;
-        onMap=true;
+        currentBuilding = 0;
         if(d==1){
             faceUp=true;
             faceDown=false;
@@ -106,9 +105,134 @@ public class Player {
         faceRight=true;
     }
 
-    public boolean isOnMap() {return onMap;}
+    public int getCurrentBuilding() {return currentBuilding;}
 
-    public void leaveMap(){onMap=false;}
+    public void leaveBuilding(){
+        if (getCurrentBuilding()==1) {
+            lookDown();
+            setX(191);
+            setY(172);
+        }
+        else if(getCurrentBuilding()==2) {
+            lookLeft();
+            setX(501);
+            setY(316);
+        }
+        else if (getCurrentBuilding()==3) {
+            lookRight();
+            setX(409);
+            setY(367);
+        }
+        else if(getCurrentBuilding()==4) {
+            lookUp();
+            setX(444);
+            setY(626);
+        }
+        else if(getCurrentBuilding()==5){
+            lookLeft();
+            setX(742);
+            setY(107);
+        }
+        else if (getCurrentBuilding()==6){
+            lookLeft();
+            setX(749);
+            setY(249);
+        }
+        else if (getCurrentBuilding()==7) {
+            lookLeft();
+            setX(766);
+            setY(407);
+        }
+        else {
+            lookLeft();
+            setX(701);
+            setY(668);
+        }
+        currentBuilding=0;
+    }
 
-    public void enterMap(){onMap=true;}
+    public void enterBuilding(int playerNum,int bldgNum){
+        if (bldgNum==1){
+            if(playerNum==1){
+                setX(200);
+                setY(93);
+            }
+            else {
+                setX(259);
+                setY(93);
+            }
+        }
+        else if(bldgNum==2){
+            if(playerNum==1){
+                setX(547);
+                setY(280);
+            }
+            else {
+                setX(547);
+                setY(339);
+            }
+        }
+        else if(bldgNum==3){
+            if(playerNum==1){
+                setX(277);
+                setY(347);
+            }
+            else {
+                setX(336);
+                setY(347);
+            }
+        }
+        else if(bldgNum==4){
+            if(playerNum==1){
+                setX(314);
+                setY(676);
+            }
+            else {
+                setX(373);
+                setY(676);
+            }
+        }
+        else if(bldgNum==5){
+            if(playerNum==1){
+                setX(858);
+                setY(109);
+            }
+            else {
+                setX(917);
+                setY(109);
+            }
+        }
+        else if(bldgNum==6){
+            if(playerNum==1){
+                setX(829);
+                setY(244);
+            }
+            else {
+                setX(888);
+                setY(244);
+            }
+        }
+        else if(bldgNum==7){
+            if(playerNum==1){
+                setX(838);
+                setY(418);
+            }
+            else {
+                setX(897);
+                setY(418);
+            }
+        }
+        else{
+            if(playerNum==1){
+                setX(739);
+                setY(583);
+            }
+            else {
+                setX(739);
+                setY(642);
+            }
+        }
+        lookUp();
+        currentBuilding=bldgNum;
+    }
 }
