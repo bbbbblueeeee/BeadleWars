@@ -23,13 +23,13 @@ public class GameFrame extends JFrame {
     private Player me,other;
     private Timer animationTimer;
     private boolean up,down,left,right;
-    private Image mySprite,otherSprite,map;
+    private Image mySprite,otherSprite,map,myInsideSprite,myInsideBody,otherInsideSprite,otherInsideBody,insideMap;
     private DrawingComponent drawingComponent;
     private Socket socket;
     private ReadFromServer rfsRunnable;
     private WriteToServer wtsRunnable;
     private Rectangle[] paths,entryPoints;
-    private String myIconText, otherIconText;
+    //private String myIconText,otherIconText;
 
     public GameFrame(int w,int h){
         width=w;
@@ -74,8 +74,8 @@ public class GameFrame extends JFrame {
         entryPoints[6]=new Rectangle(759,407,35,30); //SIC-C
         entryPoints[7]=new Rectangle(694,668,35,31); //Professors' Building
         //make code that assigns sprites depending on what the player and opponent chose. something with arrays
-        myIconText = "/assets/player_"+me.getColorNum()+"_"+me.direction()+".png";
-        otherIconText="/assets/player_"+other.getColorNum()+"_"+other.direction()+".png";
+        //myIconText = "/assets/player_"+me.getColorNum()+"_"+me.direction()+".png";
+        //otherIconText="/assets/player_"+other.getColorNum()+"_"+other.direction()+".png";
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
@@ -106,16 +106,25 @@ public class GameFrame extends JFrame {
     private class DrawingComponent extends JComponent{
         protected void paintComponent(Graphics graphics){
             Graphics2D g2d=(Graphics2D) graphics;
-            AffineTransform reset = g2d.getTransform();
-            g2d.drawImage(map,0,0,null);
-            myIconText = "/assets/player_"+me.getColorNum()+"_"+me.direction()+".png";
-            otherIconText="/assets/player_"+other.getColorNum()+"_"+other.direction()+".png";
-            mySprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource(myIconText));
-            otherSprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource(otherIconText));
-            //g2d.rotate(Math.toRadians(me.getRotation()), me.getX(), me.getY());
-            g2d.drawImage(mySprite,me.getX(),me.getY(),null);
-            g2d.setTransform(reset);
-            g2d.drawImage(otherSprite,other.getX(), other.getY(),null);
+            //AffineTransform reset = g2d.getTransform();
+            if(me.getCurrentBuilding()==0) {
+                g2d.drawImage(map, 0, 0, null);
+                mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.direction() + ".png"));
+                otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.direction() + ".png"));
+                g2d.drawImage(mySprite, me.getX(), me.getY(), null);
+                //g2d.setTransform(reset);
+                g2d.drawImage(otherSprite, other.getX(), other.getY(), null);
+            }
+            else {
+                insideMap=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/interior_"+me.getCurrentBuilding()+".png"));
+                g2d.drawImage(insideMap, me.getInsideMapX(), 0, null);
+                if(other.getCurrentBuilding()==me.getCurrentBuilding()){
+                    otherInsideSprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_"+other.getColorNum()+"_"+other.direction()+".png"));
+                    g2d.drawImage(otherInsideSprite, other.getInsideX(), other.getInsideY(), null);
+                }
+                myInsideSprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_"+me.getColorNum()+"_"+me.direction()+".png"));
+                g2d.drawImage(otherInsideSprite, me.getInsideX(), me.getInsideY(), null);
+            }
         }
     }
 
@@ -159,18 +168,26 @@ public class GameFrame extends JFrame {
                     }
                 }
                 if (left) {
-                    me.moveH(-speed);
-                    if (!isOnPath(me.getX(), me.getY())) {
-                        me.setX(me.getPrevX());
-                        me.setY(me.getPrevY());
+                    if (me.getCurrentBuilding()==0) {
+                        me.moveH(-speed);
+                        if (!isOnPath(me.getX(), me.getY())) {
+                            me.setX(me.getPrevX());
+                            me.setY(me.getPrevY());
+                        }
                     }
+                    else
+                        me.moveH(-speed-2);
                 }
                 if(right) {
-                    me.moveH(speed);
-                    if (!isOnPath(me.getX(), me.getY())) {
-                        me.setX(me.getPrevX());
-                        me.setY(me.getPrevY());
+                    if(me.getCurrentBuilding()==0) {
+                        me.moveH(speed);
+                        if (!isOnPath(me.getX(), me.getY())) {
+                            me.setX(me.getPrevX());
+                            me.setY(me.getPrevY());
+                        }
                     }
+                    else
+                        me.moveH(speed+2);
                 }
 
                 drawingComponent.repaint();
@@ -191,41 +208,32 @@ public class GameFrame extends JFrame {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                int keyCode=e.getKeyCode();
+                int keyCode = e.getKeyCode();
 
-                if(keyCode==KeyEvent.VK_ENTER){
-                    if (me.getCurrentBuilding()==0){
-                        for(int i=0;i<8;i++){
-                            if(entryPoints[i].contains(me.getX(),me.getY()))
-                                me.enterBuilding(playerID,i+1);
+                if (keyCode == KeyEvent.VK_ENTER) {
+                    if (me.getCurrentBuilding() == 0) {
+                        for (int i = 0; i < 8; i++) {
+                            if (entryPoints[i].contains(me.getX(), me.getY()))
+                                me.enterBuilding(playerID, i + 1);
                         }
-                    }
-                    else
+                    } else
                         me.leaveBuilding();
-                }
-                else if (keyCode==KeyEvent.VK_UP || keyCode==KeyEvent.VK_W) {
-                    if(me.getCurrentBuilding()==0) {
+                } else if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
+                    if (me.getCurrentBuilding() == 0) {
                         up = true;
                         me.lookUp();
                     }
-                }
-                else if (keyCode==KeyEvent.VK_DOWN || keyCode==KeyEvent.VK_S) {
-                    if(me.getCurrentBuilding()==0) {
+                } else if (keyCode == KeyEvent.VK_DOWN || keyCode == KeyEvent.VK_S) {
+                    if (me.getCurrentBuilding() == 0) {
                         down = true;
                         me.lookDown();
                     }
-                }
-                else if(keyCode==KeyEvent.VK_LEFT || keyCode==KeyEvent.VK_A) {
-                    if(me.getCurrentBuilding()==0) {
-                        left = true;
-                        me.lookLeft();
-                    }
-                }
-                else if(keyCode==KeyEvent.VK_RIGHT ||keyCode==KeyEvent.VK_D) {
-                    if(me.getCurrentBuilding()==0) {
-                        right = true;
-                        me.lookRight();
-                    }
+                } else if (keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_A) {
+                    left = true;
+                    me.lookLeft();
+                } else if (keyCode == KeyEvent.VK_RIGHT || keyCode == KeyEvent.VK_D) {
+                    right = true;
+                    me.lookRight();
                 }
             }
 
@@ -259,8 +267,11 @@ public class GameFrame extends JFrame {
                 while (true){
                     if (other != null)
                     {
-                        other.setX((int) dataIn.readDouble());
-                        other.setY((int) dataIn.readDouble());
+                        other.setX(dataIn.readInt());
+                        other.setY(dataIn.readInt());
+                        other.setInsideX(dataIn.readInt());
+                        other.setInsideY(dataIn.readInt());
+                        other.setInsideMapX(dataIn.readInt());
                     }
                 }
 
@@ -297,8 +308,11 @@ public class GameFrame extends JFrame {
                 while (true){
                     if (me!=null)
                     {
-                        dataOut.writeDouble(me.getX());
-                        dataOut.writeDouble(me.getY());
+                        dataOut.writeInt(me.getX());
+                        dataOut.writeInt(me.getY());
+                        dataOut.writeInt(me.getInsideX());
+                        dataOut.writeInt(me.getInsideY());
+                        dataOut.writeInt(me.getInsideMapX());
                         dataOut.flush();
                     }
                     try{
@@ -311,9 +325,9 @@ public class GameFrame extends JFrame {
             }catch (IOException ex){
                 System.out.println("IOException from WTS run()");
             }
-
         }
     }
+
     public static void main(String[] args) {
         GameFrame gameFrame=new GameFrame(1024,768);
         gameFrame.connectToServer();
