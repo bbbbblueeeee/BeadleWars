@@ -1,7 +1,7 @@
 public class Player {
 
-    private int x,y,prevX,prevY,colorNum,currentBuilding;
-    private boolean faceUp,faceDown,faceLeft,faceRight;
+    private int x,y,prevX,prevY,colorNum,currentBuilding,insideX,insideY,insideMapX;
+    private boolean faceUp,faceDown,faceLeft;
 
     public Player(int a,int b,int c,int d){
         x=a;
@@ -14,13 +14,11 @@ public class Player {
             faceUp=true;
             faceDown=false;
             faceLeft=false;
-            faceRight=false;
         }
         else{
             faceUp=false;
             faceDown=true;
             faceLeft=false;
-            faceRight=false;
         }
     }
 
@@ -36,8 +34,27 @@ public class Player {
     }
 
     public void moveH(int n){
-        prevX=x;
-        x+=n;
+        if(currentBuilding==0) {
+            prevX = x;
+            x += n;
+        }
+        else {
+            if(insideX>462) {
+                insideX += n;
+                if(insideX>924)
+                    insideX=924;
+            }
+            else if(insideMapX<0){
+                insideMapX+=n;
+                if(insideMapX>0)
+                    insideMapX=0;
+            }
+            else {
+                insideX+=n;
+                if(insideX<0)
+                    insideX=0;
+            }
+        }
     }
 
     public void moveV(int n){
@@ -77,32 +94,52 @@ public class Player {
         return prevY;
     }
 
+    public void setInsideX(int n){
+        insideX=n;
+    }
+
+    public void setInsideY(int n){
+        insideY=n;
+    }
+
+    public void setInsideMapX(int n){
+        insideMapX=n;
+    }
+
+    public int getInsideX(){
+        return insideX;
+    }
+
+    public int getInsideY(){
+        return insideY;
+    }
+
+    public int getInsideMapX(){
+        return insideMapX;
+    }
+
     public void lookUp(){
         faceUp=true;
         faceDown=false;
         faceLeft=false;
-        faceRight=false;
     }
 
     public void lookDown(){
         faceUp=false;
         faceDown=true;
         faceLeft=false;
-        faceRight=false;
     }
 
     public void lookLeft(){
         faceUp=false;
         faceDown=false;
         faceLeft=true;
-        faceRight=false;
     }
 
     public void lookRight(){
         faceUp=false;
         faceDown=false;
         faceLeft=false;
-        faceRight=true;
     }
 
     public int getCurrentBuilding() {return currentBuilding;}
@@ -152,6 +189,9 @@ public class Player {
     }
 
     public void enterBuilding(int playerNum,int bldgNum){
+        insideX=924;
+        insideY=0;
+        insideMapX=-1024;
         if (bldgNum==1){
             if(playerNum==1){
                 setX(200);
