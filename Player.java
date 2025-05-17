@@ -207,7 +207,7 @@ public class Player {
 
     public void enterBuilding(int playerNum,int bldgNum){
         insideX=924;
-        insideY=300;
+        insideY=471;
         lookLeft();
         insideMapX=-1024;
         if (bldgNum==1){
