@@ -38,14 +38,14 @@ public class Player {
             prevX = x;
             x += n;
         }
-        else {
+        else if(n<0){
             if(insideX>462) {
                 insideX += n;
                 if(insideX>924)
                     insideX=924;
             }
             else if(insideMapX<0){
-                insideMapX+=n;
+                insideMapX-=n;
                 if(insideMapX>0)
                     insideMapX=0;
             }
@@ -53,6 +53,23 @@ public class Player {
                 insideX+=n;
                 if(insideX<0)
                     insideX=0;
+            }
+        }
+        else{
+            if(insideX<=462) {
+                insideX+=n;
+                if(insideX<0)
+                    insideX=0;
+            }
+            else if(insideMapX>-1024){
+                insideMapX-=n;
+                if(insideMapX<-1024)
+                    insideMapX=-1024;
+            }
+            else{
+                insideX += n;
+                if(insideX>924)
+                    insideX=924;
             }
         }
     }
@@ -190,7 +207,8 @@ public class Player {
 
     public void enterBuilding(int playerNum,int bldgNum){
         insideX=924;
-        insideY=0;
+        insideY=471;
+        lookLeft();
         insideMapX=-1024;
         if (bldgNum==1){
             if(playerNum==1){
@@ -272,7 +290,6 @@ public class Player {
                 setY(642);
             }
         }
-        lookUp();
         currentBuilding=bldgNum;
     }
     public int getItemNum(){return itemNum;}
