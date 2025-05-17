@@ -122,11 +122,15 @@ public class GameFrame extends JFrame {
                 insideMap=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/interior_"+me.getCurrentBuilding()+".png"));
                 g2d.drawImage(insideMap, me.getInsideMapX(), 0, null);
                 if(other.getCurrentBuilding()==me.getCurrentBuilding()){
-                    otherInsideSprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_"+other.getColorNum()+"_"+other.direction()+".png"));
+                    otherInsideSprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_"+other.getColorNum()+"_"+other.direction()+"_1.png"));
                     g2d.drawImage(otherInsideSprite, other.getInsideX(), other.getInsideY(), null);
                 }
-                myInsideSprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_"+me.getColorNum()+"_"+me.direction()+".png"));
-                g2d.drawImage(otherInsideSprite, me.getInsideX(), me.getInsideY(), null);
+                try {
+                    myInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + me.getColorNum() + "_" + me.direction() + "_1.png"));
+                    g2d.drawImage(myInsideSprite, me.getInsideX(), me.getInsideY(), null);
+                }catch (Exception e){
+                    System.out.println("/assets/playerIn_" + me.getColorNum() + "_" + me.direction() + "_1.png");
+                }
                 repaint();
             }
             if (me.getItemNum() == 1) {
@@ -139,12 +143,12 @@ public class GameFrame extends JFrame {
 
     private void createPlayer(){
         if (playerID ==1){
-            me=new Player(445,108,1,2);
-            other=new Player(445,626,5,1);
+            me=new Player(445,108,7,2);
+            other=new Player(445,626,3,1);
         }
         else{
-            other=new Player(445,108,1,2);
-            me=new Player(445,626,5,1);
+            other=new Player(445,108,7,2);
+            me=new Player(445,626,3,1);
         }
     }
 
