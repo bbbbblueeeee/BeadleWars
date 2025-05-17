@@ -23,7 +23,7 @@ public class GameFrame extends JFrame {
     private Player me,other;
     private Timer animationTimer;
     private boolean up,down,left,right;
-    private Image mySprite,otherSprite,map,myInsideSprite,myInsideBody,otherInsideSprite,otherInsideBody,insideMap;
+    private Image mySprite,otherSprite,map,myInsideSprite,myInsideBody,otherInsideSprite,otherInsideBody,insideMap,paper,food;
     private DrawingComponent drawingComponent;
     private Socket socket;
     private ReadFromServer rfsRunnable;
@@ -42,6 +42,8 @@ public class GameFrame extends JFrame {
         entryPoints=new Rectangle[8];
 
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
+        paper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/paper.png"));
+        food = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/food.png"));
     }
 
     public void setUpGUI(){
@@ -127,6 +129,11 @@ public class GameFrame extends JFrame {
                 g2d.drawImage(otherInsideSprite, me.getInsideX(), me.getInsideY(), null);
                 repaint();
             }
+            if (me.getItemNum() == 1) {
+                g2d.drawImage(paper, 35, 629, null);
+            } else if (me.getItemNum() == 2) {
+                g2d.drawImage(food, 35, 629, null);
+            }
         }
     }
 
@@ -211,6 +218,15 @@ public class GameFrame extends JFrame {
             @Override
             public void keyPressed(KeyEvent e) {
                 int keyCode = e.getKeyCode();
+
+                // just testing the inventory switch, will delete
+                if (keyCode == KeyEvent.VK_1) {
+                    me.receiveItem(1);
+                } else if (keyCode == KeyEvent.VK_2) {
+                    me.receiveItem(2);
+                } else if (keyCode == KeyEvent.VK_0) {
+                    me.giveItem();
+                }
 
                 if (keyCode == KeyEvent.VK_ENTER) {
                     if (me.getCurrentBuilding() == 0) {

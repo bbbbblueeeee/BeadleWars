@@ -1,6 +1,6 @@
 public class Player {
 
-    private int x,y,prevX,prevY,colorNum,currentBuilding,insideX,insideY,insideMapX;
+    private int x,y,prevX,prevY,colorNum,currentBuilding,insideX,insideY,insideMapX,itemNum;
     private boolean faceUp,faceDown,faceLeft;
 
     public Player(int a,int b,int c,int d){
@@ -275,4 +275,13 @@ public class Player {
         lookUp();
         currentBuilding=bldgNum;
     }
+    public int getItemNum(){return itemNum;}
+
+    public void receiveItem (int n)
+    {
+
+        if (n == 1 || n ==2)
+            itemNum = n;
+    }
+    public void giveItem () {itemNum =0;}
 }
