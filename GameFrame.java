@@ -51,28 +51,28 @@ public class GameFrame extends JFrame {
         createPlayer();
         drawingComponent=new DrawingComponent();
         contentPane.add(drawingComponent);
-        paths[0]=new Rectangle(191,172,31,390);
-        paths[1]=new Rectangle(191,190,285,31);
-        paths[2]=new Rectangle(191,528,285,34);
-        paths[3]=new Rectangle(444,107,32,547);
-        paths[4]=new Rectangle(444,316,85,32);
-        paths[5]=new Rectangle(409,367,67,32);
-        paths[6]=new Rectangle(444,107,326,31);
-        paths[7]=new Rectangle(444,611,233,31);
-        paths[8]=new Rectangle(703,107,34,330);
-        paths[9]=new Rectangle(703,249,74,32);
-        paths[10]=new Rectangle(703,407,91,30);
-        paths[11]=new Rectangle(644,361,93,31);
-        paths[12]=new Rectangle(644,361,33,338);
-        paths[13]=new Rectangle(644,668,85,31);
-        entryPoints[0]= new Rectangle(191,172,31,35); //NBL
-        entryPoints[1]=new Rectangle(494,316,35,32); //D-Shop
-        entryPoints[2]=new Rectangle(409,367,35,32); //Pawra
-        entryPoints[3]=new Rectangle(444,619,32,35); //Gomz Caf
-        entryPoints[4]=new Rectangle(735,107,35,31); //SIC-A
-        entryPoints[5]=new Rectangle(742,249,35,32); //SIC-B
-        entryPoints[6]=new Rectangle(759,407,35,30); //SIC-C
-        entryPoints[7]=new Rectangle(694,668,35,31); //Professors' Building
+        paths[0]=new Rectangle(186,172,41,395);
+        paths[1]=new Rectangle(186,185,295,43);
+        paths[2]=new Rectangle(186,524,295,43);
+        paths[3]=new Rectangle(438,101,43,553);
+        paths[4]=new Rectangle(439,307,90,43);
+        paths[5]=new Rectangle(409,360,72,43);
+        paths[6]=new Rectangle(439,101,331,42);
+        paths[7]=new Rectangle(438,605,243,43);
+        paths[8]=new Rectangle(701,101,41,342);
+        paths[9]=new Rectangle(701,244,76,41);
+        paths[10]=new Rectangle(701,401,93,42);
+        paths[11]=new Rectangle(639,355,103,42);
+        paths[12]=new Rectangle(639,355,42,354);
+        paths[13]=new Rectangle(639,668,90,41);
+        entryPoints[0]= new Rectangle(186,172,41,35); //NBL
+        entryPoints[1]=new Rectangle(494,307,35,41); //D-Shop
+        entryPoints[2]=new Rectangle(409,360,35,43); //Pawra
+        entryPoints[3]=new Rectangle(438,619,43,35); //Gomz Caf
+        entryPoints[4]=new Rectangle(735,101,35,42); //SIC-A
+        entryPoints[5]=new Rectangle(742,244,35,41); //SIC-B
+        entryPoints[6]=new Rectangle(759,401,35,42); //SIC-C
+        entryPoints[7]=new Rectangle(694,668,35,41); //Professors' Building
         //make code that assigns sprites depending on what the player and opponent chose. something with arrays
         //myIconText = "/assets/player_"+me.getColorNum()+"_"+me.direction()+".png";
         //otherIconText="/assets/player_"+other.getColorNum()+"_"+other.direction()+".png";
@@ -114,6 +114,7 @@ public class GameFrame extends JFrame {
                 g2d.drawImage(mySprite, me.getX(), me.getY(), null);
                 //g2d.setTransform(reset);
                 g2d.drawImage(otherSprite, other.getX(), other.getY(), null);
+                repaint();
             }
             else {
                 insideMap=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/interior_"+me.getCurrentBuilding()+".png"));
@@ -124,6 +125,7 @@ public class GameFrame extends JFrame {
                 }
                 myInsideSprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_"+me.getColorNum()+"_"+me.direction()+".png"));
                 g2d.drawImage(otherInsideSprite, me.getInsideX(), me.getInsideY(), null);
+                repaint();
             }
         }
     }
