@@ -176,10 +176,10 @@ public class GameFrame extends JFrame implements MouseListener {
                     }
                     if (other.getCurrentBuilding() == me.getCurrentBuilding()) {
                         otherInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + other.getColorNum() + "_" + other.getDirection() + "_1.png"));
-                        g2d.drawImage(otherInsideSprite, other.getInsideX(), 471, null);
+                        g2d.drawImage(otherInsideSprite, other.getInsideX(), 411, null);
                     }
                     myInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + me.getColorNum() + "_" + me.getDirection() + "_1.png"));
-                    g2d.drawImage(myInsideSprite, me.getInsideX(), 471, null);
+                    g2d.drawImage(myInsideSprite, me.getInsideX(), 411, null);
                     repaint();
                 }
                 else{
