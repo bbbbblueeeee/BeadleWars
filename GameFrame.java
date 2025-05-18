@@ -3,10 +3,7 @@ import org.w3c.dom.css.Rect;
 import javax.print.attribute.standard.DialogOwner;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -16,19 +13,19 @@ import java.net.Socket;
 import java.io.*;
 import java.net.*;
 
-public class GameFrame extends JFrame {
+public class GameFrame extends JFrame implements MouseListener {
 
     private int width,height,playerID;
     private Container contentPane;
     private Player me,other;
     private Timer animationTimer;
     private boolean up,down,left,right;
-    private Image mySprite,otherSprite,map,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,paper,food;
+    private Image mySprite,otherSprite,map,menu,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,paper,food;
     private DrawingComponent drawingComponent;
     private Socket socket;
     private ReadFromServer rfsRunnable;
     private WriteToServer wtsRunnable;
-    private Rectangle[] paths,entryPoints;
+    private Rectangle[] paths,entryPoints,menuOptions;
     private Quest current;
 
     public GameFrame(int w,int h){
@@ -40,6 +37,8 @@ public class GameFrame extends JFrame {
         right=false;
         paths=new Rectangle[14];
         entryPoints=new Rectangle[8];
+        menuOptions=new Rectangle[4];
+        this.addMouseListener(this);
 
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
         invPaper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_paper.png"));
@@ -77,6 +76,10 @@ public class GameFrame extends JFrame {
         entryPoints[5]=new Rectangle(742,244,35,41); //SIC-B
         entryPoints[6]=new Rectangle(759,401,35,42); //SIC-C
         entryPoints[7]=new Rectangle(694,668,35,41); //Professors' Building
+        menuOptions[0]=new Rectangle(512,138,245,294);
+        menuOptions[1]=new Rectangle(762,138,241,294);
+        menuOptions[2]=new Rectangle(512,438,245,304);
+        menuOptions[3]=new Rectangle(762,438,241,304);
         //make code that assigns sprites depending on what the player and opponent chose. something with arrays
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -118,55 +121,73 @@ public class GameFrame extends JFrame {
                 repaint();
             }
             else {
-                insideMap=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/interior_"+me.getCurrentBuilding()+".png"));
-                g2d.drawImage(insideMap, me.getInsideMapX(), 0, null);
-                if(me.getCurrentBuilding()==8){
-                    Quest dp=null;
-                    for(Quest q : me.getQuestList()){
-                        if(q.getQuestType()==1) {
-                            dp=q;
-                            break;
+                if (me.getCurrentStall() == 0) {
+                    insideMap = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/interior_" + me.getCurrentBuilding() + ".png"));
+                    g2d.drawImage(insideMap, me.getInsideMapX(), 0, null);
+                    if (me.getCurrentBuilding() == 8) {
+                        Quest dp = null;
+                        for (Quest q : me.getQuestList()) {
+                            if (q.getQuestType() == 1) {
+                                dp = q;
+                                break;
+                            }
+                        }
+                        if (dp != null) {
+                            if (((DeliverPapers) dp).getStatus() == 0) {
+                                g2d.drawImage(invPaper, me.getInsideMapX() + 34, 500, null);
+                                System.out.println("drawing papers");
+                            }
                         }
                     }
-                    if(dp!=null){
-                        if(((DeliverPapers) dp).getStatus()==0) {
-                            g2d.drawImage(invPaper, me.getInsideMapX() + 34, 500, null);
-                            System.out.println("drawing papers");
-                        }
-                    }
-                }
-                if(me.getCurrentBuilding()!=0&&me.getItemNum()!=0){
-                    for(Quest quest : me.getQuestList()){
-                        if(quest.getTargetBuildingNum()==me.getCurrentBuilding()) {
-                            if(quest.getQuestType()==1) {
-                                if (((DeliverPapers) quest).getStatus() == 1) {
-                                    current = quest;
-                                    break;
+                    if (me.getCurrentBuilding() != 0 && me.getItemNum() != 0) {
+                        for (Quest quest : me.getQuestList()) {
+                            if (quest.getTargetBuildingNum() == me.getCurrentBuilding()) {
+                                if (quest.getQuestType() == 1) {
+                                    if (((DeliverPapers) quest).getStatus() == 1) {
+                                        current = quest;
+                                        break;
+                                    }
+                                }
+                                else if(quest.getQuestType()==2){
+                                    if(((OrderFood) quest).getStatus()==1){
+                                        current=quest;
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                if(current!=null){
-                    if(current.getQuestType()==1) {
-                        if (((DeliverPapers) current).getStatus() == 2) {
-                            g2d.drawImage(invPaper, me.getInsideMapX() + 34, 500, null);
-                            System.out.println("drawing papers");
+                    if (current != null) {
+                        if (current.getQuestType() == 1) {
+                            if (((DeliverPapers) current).getStatus() == 2) {
+                                g2d.drawImage(invPaper, me.getInsideMapX() + 34, 500, null);
+                                System.out.println("drawing papers");
+                            }
+                        }
+                        else if(current.getQuestType()==2){
+                            if(((OrderFood) current).getStatus()==2){
+                                g2d.drawImage(invFood,me.getInsideMapX()+34,500,null);
+                                System.out.println("drawing food");
+                            }
                         }
                     }
+                    if (other.getCurrentBuilding() == me.getCurrentBuilding()) {
+                        otherInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + other.getColorNum() + "_" + other.getDirection() + "_1.png"));
+                        g2d.drawImage(otherInsideSprite, other.getInsideX(), 471, null);
+                    }
+                    myInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + me.getColorNum() + "_" + me.getDirection() + "_1.png"));
+                    g2d.drawImage(myInsideSprite, me.getInsideX(), 471, null);
+                    repaint();
                 }
-                if(other.getCurrentBuilding()==me.getCurrentBuilding()){
-                    otherInsideSprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_"+other.getColorNum()+"_"+other.getDirection()+"_1.png"));
-                    g2d.drawImage(otherInsideSprite, other.getInsideX(), 471, null);
+                else{
+                    menu=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/menu_" + me.getCurrentStall() + ".png"));
+                    g2d.drawImage(menu,0,0,null);
                 }
-                myInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + me.getColorNum() + "_" + me.getDirection() + "_1.png"));
-                g2d.drawImage(myInsideSprite, me.getInsideX(), 471, null);
-                repaint();
-            }
-            if (me.getItemNum() == 1) {
-                g2d.drawImage(invPaper, 35, 629, null);
-            } else if (me.getItemNum() == 2) {
-                g2d.drawImage(invFood, 35, 629, null);
+                if (me.getItemNum() == 1) {
+                    g2d.drawImage(invPaper, 35, 629, null);
+                } else if (me.getItemNum() == 2) {
+                    g2d.drawImage(invFood, 35, 629, null);
+                }
             }
         }
     }
@@ -255,11 +276,14 @@ public class GameFrame extends JFrame {
 
                 // just testing the inventory switch, will delete
                 if (keyCode == KeyEvent.VK_1) {
-                    int g=(int)(Math.random()*3+5);
-                    me.getQuestList().add(new DeliverPapers(me,g));
-                    System.out.println("assigned deliver papers to building#"+g);
+                    int t=(int)(Math.random()*3+5);
+                    me.getQuestList().add(new DeliverPapers(me,t));
+                    System.out.println("assigned deliver papers to building#"+t);
                 } else if (keyCode == KeyEvent.VK_2) {
-                    me.receiveItem(2);
+                    int t=(int)(Math.random()*4+5);
+                    int o=(int)(Math.random()*9+1);
+                    me.getQuestList().add(new OrderFood(me,t,o));
+                    System.out.println("assigned deliver order#"+o+" to building#"+t);
                 } else if (keyCode == KeyEvent.VK_0) {
                     me.giveItem();
                 }
@@ -268,7 +292,7 @@ public class GameFrame extends JFrame {
                     if(me.getInsideMapX()==0&&me.getInsideX()<230) {
                         if (me.getItemNum() == 0) {
                             for (Quest q : me.getQuestList()) {
-                                if (q.getQuestType() == 1) {
+                                if (q.getQuestType() == 1&&((DeliverPapers) q).getStatus()==0) {
                                     ((DeliverPapers) q).takePaper();
                                     System.out.println("took papers");
                                     break;
@@ -277,9 +301,20 @@ public class GameFrame extends JFrame {
                         }
                         else{
                             for (Quest q : me.getQuestList()) {
-                                if (q.getQuestType() == 1 && q.getTargetBuildingNum()==me.getCurrentBuilding()) {
+                                if (q.getQuestType() == 1 && q.getTargetBuildingNum()==me.getCurrentBuilding()&&((DeliverPapers) q).getStatus()==1) {
                                     ((DeliverPapers) q).placePaper();
                                     System.out.println("placed papers");
+                                    break;
+                                }
+                                if(q.getQuestType()==2&&q.getTargetBuildingNum()==me.getCurrentBuilding()&&((OrderFood) q).getStatus()==1){
+                                    if(((OrderFood)q).hasCorrectOrder()) {
+                                        ((OrderFood) q).placeOrder();
+                                        System.out.println("placed order");
+                                    }
+                                    else{
+                                        ((OrderFood)q).resetQuest();
+                                        System.out.println("wrong order, try again");
+                                    }
                                     break;
                                 }
                             }
@@ -293,7 +328,21 @@ public class GameFrame extends JFrame {
                             if (entryPoints[i].contains(me.getX(), me.getY()))
                                 me.enterBuilding(playerID, i + 1);
                         }
-                    } else
+                    }
+                    else if(me.getCurrentBuilding()==4&&me.getCurrentStall()==0){
+                        if(me.getInsideX()<381&&me.getInsideX()>26&&me.getInsideMapX()==0) {
+                            me.setCurrentStall(1);
+                        }
+                        else if(me.getInsideMapX()<-210&&me.getInsideMapX()>-577){
+                            me.setCurrentStall(2);
+                        }
+                        else if(me.getInsideMapX()<-855&&me.getInsideX()<657){
+                            me.setCurrentStall(3);
+                        }
+                        else{
+                            me.leaveBuilding();
+                        }
+                    }else
                         me.leaveBuilding();
                 } else if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
                     if (me.getCurrentBuilding() == 0) {
@@ -330,6 +379,47 @@ public class GameFrame extends JFrame {
         };
         this.addKeyListener(keyListener);
         contentPane.setFocusable(true);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if(menuOptions[3].contains((int)MouseInfo.getPointerInfo().getLocation().getX(),(int)MouseInfo.getPointerInfo().getLocation().getY()))
+            me.setCurrentStall(0);
+        for(int i=0;i<3;i++) {
+            if (menuOptions[i].contains((int) MouseInfo.getPointerInfo().getLocation().getX(), (int) MouseInfo.getPointerInfo().getLocation().getY())) {
+                if (me.getCurrentStall() != 0) {
+                    for (Quest quest : me.getQuestList()) {
+                        if (quest.getQuestType() == 2) {
+                            ((OrderFood) quest).takeOrder(me.getCurrentStall() * 3 - (2-i));
+                            System.out.println("took food order#" + (me.getCurrentStall() * 3 - (2-i)));
+                            me.setCurrentStall(0);
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 
     private class ReadFromServer implements Runnable{

@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class Player {
 
-    private int x,y,prevX,prevY,colorNum,direction,currentBuilding,insideX,insideMapX,itemNum,points;
+    private int x,y,prevX,prevY,colorNum,direction,currentBuilding,currentStall,insideX,insideMapX,itemNum,points;
     private ArrayList <Quest> quests;
 
     public Player(int a,int b,int c,int d){
@@ -12,6 +12,7 @@ public class Player {
         prevY=b;
         colorNum=c;
         currentBuilding = 0;
+        currentStall=0;
         points=0;
         quests=new ArrayList<>();
         if(d==1)
@@ -261,6 +262,7 @@ public class Player {
     {
             itemNum = n;
     }
+
     public void giveItem () {
         itemNum =0;
     }
@@ -275,6 +277,14 @@ public class Player {
 
     public ArrayList<Quest> getQuestList(){
         return quests;
+    }
+
+    public int getCurrentStall(){
+        return currentStall;
+    }
+
+    public void setCurrentStall(int n){
+        currentStall=n;
     }
 
 }
