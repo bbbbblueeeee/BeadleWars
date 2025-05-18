@@ -1,20 +1,13 @@
-import org.w3c.dom.css.Rect;
-
-import javax.print.attribute.standard.DialogOwner;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.geom.AffineTransform;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.io.*;
-import java.net.*;
 
 public class GameFrame extends JFrame {
 
@@ -173,7 +166,7 @@ public class GameFrame extends JFrame {
             }
 
             for (int i = 9; i <= 12; i++) {
-                if (entryPoints[i].contains(me.getGlobalInsideX(), 520)) {
+                if (entryPoints[i].contains(me.getOnScreenInsideX(), 520)) {
                     if (minigame != null)
                         g2d.drawImage(minigame, 0, 0, null);
                 }
@@ -306,15 +299,15 @@ public class GameFrame extends JFrame {
                         }
                     } else if (me.getCurrentBuilding() != 0 && me.getCurrentBuilding() < 9)
                     {
-                        if (entryPoints[8].contains(me.getGlobalInsideX(), 550))
+                        if (entryPoints[8].contains(me.getOnScreenInsideX(), 550))
                             me.leaveBuilding();
                         else if (me.getCurrentBuilding() == 4) {
                             for (int i = 1; i < 4; i++) {
-                                if (entryPoints[9 + i].contains(me.getGlobalInsideX(), 550)) {
+                                if (entryPoints[9 + i].contains(me.getOnScreenInsideX(), 550)) {
                                     minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/menu_" + i + ".png"));
                                 }
                             }
-                        } else if (entryPoints[9].contains(me.getGlobalInsideX(), 550)) {
+                        } else if (entryPoints[9].contains(me.getOnScreenInsideX(), 550)) {
                             // if player is in the sic buildings
                             if (me.getCurrentBuilding() == 5 || me.getCurrentBuilding() == 6 || me.getCurrentBuilding() == 7)
                                 minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/whiteboard.png"));
