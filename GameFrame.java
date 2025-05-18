@@ -20,7 +20,7 @@ public class GameFrame extends JFrame implements MouseListener {
     private Player me,other;
     private Timer animationTimer;
     private boolean up,down,left,right;
-    private Image mySprite,otherSprite,map,menu,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,paper,food;
+    private Image mySprite,otherSprite,map,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,minigame,menu;
     private DrawingComponent drawingComponent;
     private Socket socket;
     private ReadFromServer rfsRunnable;
@@ -36,15 +36,13 @@ public class GameFrame extends JFrame implements MouseListener {
         left=false;
         right=false;
         paths=new Rectangle[14];
-        entryPoints=new Rectangle[8];
+        entryPoints=new Rectangle[13];
         menuOptions=new Rectangle[4];
         this.addMouseListener(this);
 
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
         invPaper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_paper.png"));
         invFood = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_food.png"));
-        //paper=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/paper.png"));
-        //food=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/food.png"));
     }
 
     public void setUpGUI(){
@@ -76,6 +74,11 @@ public class GameFrame extends JFrame implements MouseListener {
         entryPoints[5]=new Rectangle(742,244,35,41); //SIC-B
         entryPoints[6]=new Rectangle(759,401,35,42); //SIC-C
         entryPoints[7]=new Rectangle(694,668,35,41); //Professors' Building
+        entryPoints[8]=new Rectangle(1800,0,248,768); // exit for when indoors
+        entryPoints[9]=new Rectangle(0,0,650,768); // minigame popups on the left
+        entryPoints[10]=new Rectangle(38,0,452,768); // minigame popup for gonz red stall
+        entryPoints[11]=new Rectangle(690,0,452,768); // minigame popups for gonz yellow stall
+        entryPoints[12]=new Rectangle(1333,0,452,768); // minigame popups for gonz blue stall
         menuOptions[0]=new Rectangle(512,138,245,294);
         menuOptions[1]=new Rectangle(762,138,241,294);
         menuOptions[2]=new Rectangle(512,438,245,304);
@@ -189,6 +192,14 @@ public class GameFrame extends JFrame implements MouseListener {
                     g2d.drawImage(invFood, 35, 629, null);
                 }
             }
+
+            for (int i = 9; i <= 12; i++) {
+                if (entryPoints[i].contains(me.getOnScreenInsideX(), 520)) {
+                    if (minigame != null)
+                        g2d.drawImage(minigame, 0, 0, null);
+                }
+            }
+
         }
     }
 
@@ -322,29 +333,44 @@ public class GameFrame extends JFrame implements MouseListener {
                     }
                 }
 
-                if (keyCode == KeyEvent.VK_ENTER) {
+                if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_Z) {
                     if (me.getCurrentBuilding() == 0) {
                         for (int i = 0; i < 8; i++) {
                             if (entryPoints[i].contains(me.getX(), me.getY()))
                                 me.enterBuilding(playerID, i + 1);
                         }
-                    }
-                    else if(me.getCurrentBuilding()==4&&me.getCurrentStall()==0){
-                        if(me.getInsideX()<381&&me.getInsideX()>26&&me.getInsideMapX()==0) {
-                            me.setCurrentStall(1);
-                        }
-                        else if(me.getInsideMapX()<-210&&me.getInsideMapX()>-577){
-                            me.setCurrentStall(2);
-                        }
-                        else if(me.getInsideMapX()<-855&&me.getInsideX()<657){
-                            me.setCurrentStall(3);
-                        }
-                        else{
+                    } else if (me.getCurrentBuilding() != 0 && me.getCurrentBuilding() < 9)
+                    {
+                        if (entryPoints[8].contains(me.getOnScreenInsideX(), 550))
                             me.leaveBuilding();
+                        else if(me.getCurrentBuilding()==4&&me.getCurrentStall()==0){
+                            if(me.getInsideX()<381&&me.getInsideX()>26&&me.getInsideMapX()==0) {
+                                me.setCurrentStall(1);
+                            }
+                            else if(me.getInsideMapX()<-210&&me.getInsideMapX()>-577){
+                                me.setCurrentStall(2);
+                            }
+                            else if(me.getInsideMapX()<-855&&me.getInsideX()<657){
+                                me.setCurrentStall(3);
+                            }
+                        } else if (entryPoints[9].contains(me.getOnScreenInsideX(), 550)) {
+                            // if player is in the sic buildings
+                            if (me.getCurrentBuilding() == 5 || me.getCurrentBuilding() == 6 || me.getCurrentBuilding() == 7)
+                                minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/whiteboard.png"));
+                            else
+                                minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
                         }
-                    }else
-                        me.leaveBuilding();
-                } else if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
+                     }
+
+                }
+                else if (keyCode == KeyEvent.VK_X) {
+                    if (minigame != null) {
+                        minigame = null;
+                        drawingComponent.repaint();
+                        System.out.println("Minigame closed");
+                    }
+                }
+                else if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
                     if (me.getCurrentBuilding() == 0) {
                         up = true;
                         me.setDirection(1);
