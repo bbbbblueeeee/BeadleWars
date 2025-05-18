@@ -9,7 +9,7 @@ public class OrderFood extends Quest{
         targetBuildingNum=b;
         wantedOrder=o;
         receivedOrder=0;
-        points=400;
+        points=350;
         questType=2;
     }
 

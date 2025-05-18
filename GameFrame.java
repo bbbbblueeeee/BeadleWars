@@ -1,3 +1,4 @@
+import com.sun.jdi.event.ExceptionEvent;
 import org.w3c.dom.css.Rect;
 
 import javax.print.attribute.standard.DialogOwner;
@@ -28,6 +29,7 @@ public class GameFrame extends JFrame implements MouseListener {
     private Rectangle[] paths,entryPoints,menuOptions;
     private Quest current;
     private Font test;
+    private String stall;
 
     public GameFrame(int w,int h){
         width=w;
@@ -40,7 +42,13 @@ public class GameFrame extends JFrame implements MouseListener {
         entryPoints=new Rectangle[8];
         menuOptions=new Rectangle[4];
         this.addMouseListener(this);
-        test=new Font("Calibri",Font.PLAIN,30);
+        try{
+            InputStream inputStream = getClass().getResourceAsStream("/assets/DisposableDroidBB.ttf");
+            test=Font.createFont(Font.TRUETYPE_FONT,inputStream);
+        }
+        catch(Exception e){
+            System.out.println("haha your font wont import");
+        }
 
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
         invPaper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_paper.png"));
@@ -184,6 +192,14 @@ public class GameFrame extends JFrame implements MouseListener {
                 else{
                     menu=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/menu_" + me.getCurrentStall() + ".png"));
                     g2d.drawImage(menu,0,0,null);
+                    g2d.setFont(test);
+                    g2d.setFont(g2d.getFont().deriveFont(35f));
+                    stall="hi, welcome to \nchili's";
+                    int i=0;
+                    for (String line:stall.split("\n")) {
+                        g2d.drawString(line, 267, 158+i);
+                        i+=35;
+                    }
                 }
                 if (me.getItemNum() == 1) {
                     g2d.drawImage(invPaper, 35, 629, null);
@@ -286,8 +302,11 @@ public class GameFrame extends JFrame implements MouseListener {
                     int o=(int)(Math.random()*9+1);
                     me.getQuestList().add(new OrderFood(me,t,o));
                     System.out.println("assigned deliver order#"+o+" to building#"+t);
-                } else if (keyCode == KeyEvent.VK_0) {
-                    me.giveItem();
+                } else if (keyCode == KeyEvent.VK_3) {
+                    int t=(int)(Math.random()*4+5);
+                    int q=(int)(Math.random()*9+1);
+                    me.getQuestList().add(new PrintPapers(me,t,q));
+                    System.out.println("assigned deliver "+q+" papers to building#"+t);
                 }
 
                 if(keyCode==KeyEvent.VK_I){

@@ -1,4 +1,4 @@
-abstract class Quest {
+public abstract class Quest {
     int points,questType,targetBuildingNum;
     boolean taskComplete=false;
 
