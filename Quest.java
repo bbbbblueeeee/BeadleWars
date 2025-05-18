@@ -1,9 +1,16 @@
 abstract class Quest {
-    int points;
+    int points,questType;
+    boolean taskComplete=false;
 
-    public abstract boolean isActive(int currentBldgNum);
+    public boolean isCompleted(){
+        return taskComplete;
+    }
 
     public int getPoints(){
         return points;
+    }
+
+    public int getQuestType(){
+        return questType;
     }
 }

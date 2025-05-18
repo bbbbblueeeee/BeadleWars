@@ -1,7 +1,10 @@
+import java.util.ArrayList;
+
 public class Player {
 
-    private int x,y,prevX,prevY,colorNum,currentBuilding,insideX,insideY,insideMapX,itemNum;
+    private int x,y,prevX,prevY,colorNum,currentBuilding,insideX,insideMapX,itemNum,points;
     private boolean faceUp,faceDown,faceLeft;
+    private ArrayList <Quest> quests;
 
     public Player(int a,int b,int c,int d){
         x=a;
@@ -10,6 +13,8 @@ public class Player {
         prevY=b;
         colorNum=c;
         currentBuilding = 0;
+        points=0;
+        quests=new ArrayList<>();
         if(d==1){
             faceUp=true;
             faceDown=false;
@@ -115,20 +120,12 @@ public class Player {
         insideX=n;
     }
 
-    public void setInsideY(int n){
-        insideY=n;
-    }
-
     public void setInsideMapX(int n){
         insideMapX=n;
     }
 
     public int getInsideX(){
         return insideX;
-    }
-
-    public int getInsideY(){
-        return insideY;
     }
 
     public int getInsideMapX(){
@@ -207,7 +204,6 @@ public class Player {
 
     public void enterBuilding(int playerNum,int bldgNum){
         insideX=924;
-        insideY=471;
         lookLeft();
         insideMapX=-1024;
         if (bldgNum==1){
@@ -296,9 +292,22 @@ public class Player {
 
     public void receiveItem (int n)
     {
-
-        if (n == 1 || n ==2)
             itemNum = n;
     }
-    public void giveItem () {itemNum =0;}
+    public void giveItem () {
+        itemNum =0;
+    }
+
+    public void addPoints(int num){
+        points+=num;
+    }
+
+    public int getPoints(){
+        return points;
+    }
+
+    public ArrayList<Quest> getQuestList(){
+        return quests;
+    }
+
 }
