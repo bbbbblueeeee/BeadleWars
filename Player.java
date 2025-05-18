@@ -262,7 +262,7 @@ public class Player {
 
     public void receiveItem (int n)
     {
-            itemNum = n;
+        itemNum = n;
     }
 
     public void giveItem () {
