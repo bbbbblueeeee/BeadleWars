@@ -23,7 +23,7 @@ public class GameFrame extends JFrame {
     private Player me,other;
     private Timer animationTimer;
     private boolean up,down,left,right;
-    private Image mySprite,otherSprite,map,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,paper,food;
+    private Image mySprite,otherSprite,map,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,minigame;
     private DrawingComponent drawingComponent;
     private Socket socket;
     private ReadFromServer rfsRunnable;
@@ -39,13 +39,11 @@ public class GameFrame extends JFrame {
         left=false;
         right=false;
         paths=new Rectangle[14];
-        entryPoints=new Rectangle[8];
+        entryPoints=new Rectangle[13];
 
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
         invPaper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_paper.png"));
         invFood = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_food.png"));
-        //paper=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/paper.png"));
-        //food=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/food.png"));
     }
 
     public void setUpGUI(){
@@ -77,6 +75,11 @@ public class GameFrame extends JFrame {
         entryPoints[5]=new Rectangle(742,244,35,41); //SIC-B
         entryPoints[6]=new Rectangle(759,401,35,42); //SIC-C
         entryPoints[7]=new Rectangle(694,668,35,41); //Professors' Building
+        entryPoints[8]=new Rectangle(1800,0,248,768); // exit for when indoors
+        entryPoints[9]=new Rectangle(0,0,650,768); // minigame popups on the left
+        entryPoints[10]=new Rectangle(38,0,452,768); // minigame popup for gonz red stall
+        entryPoints[11]=new Rectangle(690,0,452,768); // minigame popups for gonz yellow stall
+        entryPoints[12]=new Rectangle(1333,0,452,768); // minigame popups for gonz blue stall
         //make code that assigns sprites depending on what the player and opponent chose. something with arrays
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -168,6 +171,14 @@ public class GameFrame extends JFrame {
             } else if (me.getItemNum() == 2) {
                 g2d.drawImage(invFood, 35, 629, null);
             }
+
+            for (int i = 9; i <= 12; i++) {
+                if (entryPoints[i].contains(me.getGlobalInsideX(), 520)) {
+                    if (minigame != null)
+                        g2d.drawImage(minigame, 0, 0, null);
+                }
+            }
+
         }
     }
 
@@ -287,15 +298,40 @@ public class GameFrame extends JFrame {
                     }
                 }
 
-                if (keyCode == KeyEvent.VK_ENTER) {
+                if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_Z) {
                     if (me.getCurrentBuilding() == 0) {
                         for (int i = 0; i < 8; i++) {
                             if (entryPoints[i].contains(me.getX(), me.getY()))
                                 me.enterBuilding(playerID, i + 1);
                         }
-                    } else
-                        me.leaveBuilding();
-                } else if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
+                    } else if (me.getCurrentBuilding() != 0 && me.getCurrentBuilding() < 9)
+                    {
+                        if (entryPoints[8].contains(me.getGlobalInsideX(), 550))
+                            me.leaveBuilding();
+                        else if (me.getCurrentBuilding() == 4) {
+                            for (int i = 1; i < 4; i++) {
+                                if (entryPoints[9 + i].contains(me.getGlobalInsideX(), 550)) {
+                                    minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/menu_" + i + ".png"));
+                                }
+                            }
+                        } else if (entryPoints[9].contains(me.getGlobalInsideX(), 550)) {
+                            // if player is in the sic buildings
+                            if (me.getCurrentBuilding() == 5 || me.getCurrentBuilding() == 6 || me.getCurrentBuilding() == 7)
+                                minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/whiteboard.png"));
+                            else
+                                minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
+                        }
+                     }
+
+                }
+                else if (keyCode == KeyEvent.VK_X) {
+                    if (minigame != null) {
+                        minigame = null;
+                        drawingComponent.repaint();
+                        System.out.println("Minigame closed");
+                    }
+                }
+                else if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
                     if (me.getCurrentBuilding() == 0) {
                         up = true;
                         me.setDirection(1);

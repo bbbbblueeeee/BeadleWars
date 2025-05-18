@@ -122,6 +122,8 @@ public class Player {
         return insideMapX;
     }
 
+    public int getGlobalInsideX() {return insideX - insideMapX;}
+
     public int getCurrentBuilding() {return currentBuilding;}
 
     public void leaveBuilding(){
