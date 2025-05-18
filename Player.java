@@ -123,6 +123,8 @@ public class Player {
         return insideMapX;
     }
 
+    public int getOnScreenInsideX() {return insideX - insideMapX;}
+
     public int getCurrentBuilding() {return currentBuilding;}
 
     public void leaveBuilding(){
@@ -260,7 +262,7 @@ public class Player {
 
     public void receiveItem (int n)
     {
-            itemNum = n;
+        itemNum = n;
     }
 
     public void giveItem () {
