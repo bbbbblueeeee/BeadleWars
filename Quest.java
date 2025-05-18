@@ -1,5 +1,5 @@
 abstract class Quest {
-    int points,questType;
+    int points,questType,targetBuildingNum;
     boolean taskComplete=false;
 
     public boolean isCompleted(){
@@ -12,5 +12,9 @@ abstract class Quest {
 
     public int getQuestType(){
         return questType;
+    }
+
+    public int getTargetBuildingNum(){
+        return targetBuildingNum;
     }
 }
