@@ -1,6 +1,6 @@
 public class DeliverPapers extends Quest {
-    boolean hasPaper;
-    Player p;
+    public boolean hasPaper;
+    public Player p;
 
     public DeliverPapers(Player player,int b){
         p=player;

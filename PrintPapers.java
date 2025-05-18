@@ -1,14 +1,17 @@
+import java.awt.event.KeyEvent;
+
 public class PrintPapers extends Quest{
-    int wantedQuantity,enteredQuantity;
-    boolean hasPapers;
-    Player p;
+    public int wantedQuantity;
+    public boolean hasPapers;
+    public String quantity;
+    public Player p;
 
     public PrintPapers(Player player,int b,int o){
         p=player;
         hasPapers=false;
         targetBuildingNum=b;
         wantedQuantity=o;
-        enteredQuantity=0;
+        quantity="";
         points=350;
         questType=3;
     }
@@ -22,9 +25,8 @@ public class PrintPapers extends Quest{
             return 0;
     }
 
-    public void takePapers(int r){
+    public void takePapers(){
         p.receiveItem(1);
-        enteredQuantity=r;
         hasPapers=true;
     }
 
@@ -34,13 +36,22 @@ public class PrintPapers extends Quest{
     }
 
     public boolean hasCorrectQuantity(){
-        return (wantedQuantity==enteredQuantity);
+        return (wantedQuantity==Integer.valueOf(quantity));
     }
 
     public void resetQuest(){
-        enteredQuantity=0;
+        quantity="";
         taskComplete=false;
         hasPapers=false;
         p.giveItem();
     }
+
+    public void editQuantity(String s){
+        quantity+=s;
+    }
+
+    public String getQuantity(){
+        return quantity;
+    }
+
 }

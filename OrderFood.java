@@ -1,7 +1,7 @@
 public class OrderFood extends Quest{
-    int wantedOrder,receivedOrder;
-    boolean hasFood;
-    Player p;
+    public int wantedOrder,receivedOrder;
+    public boolean hasFood;
+    public Player p;
 
     public OrderFood(Player player,int b,int o){
         p=player;

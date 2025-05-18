@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class Player {
 
-    private int x,y,prevX,prevY,colorNum,direction,currentBuilding,currentStall,insideX,insideMapX,itemNum,points;
+    private int x,y,prevX,prevY,colorNum,direction,currentBuilding,currentStall,activeEvent,insideX,insideMapX,itemNum,points;
     private ArrayList <Quest> quests;
 
     public Player(int a,int b,int c,int d){

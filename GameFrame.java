@@ -28,7 +28,7 @@ public class GameFrame extends JFrame implements MouseListener {
     private WriteToServer wtsRunnable;
     private Rectangle[] paths,entryPoints,menuOptions;
     private Quest current;
-    private Font test;
+    private Font customFont;
     private String stall;
 
     public GameFrame(int w,int h){
@@ -44,7 +44,7 @@ public class GameFrame extends JFrame implements MouseListener {
         this.addMouseListener(this);
         try{
             InputStream inputStream = getClass().getResourceAsStream("/assets/DisposableDroidBB.ttf");
-            test=Font.createFont(Font.TRUETYPE_FONT,inputStream);
+            customFont=Font.createFont(Font.TRUETYPE_FONT,inputStream);
         }
         catch(Exception e){
             System.out.println("haha your font wont import");
@@ -84,11 +84,6 @@ public class GameFrame extends JFrame implements MouseListener {
         entryPoints[5]=new Rectangle(742,244,35,41); //SIC-B
         entryPoints[6]=new Rectangle(759,401,35,42); //SIC-C
         entryPoints[7]=new Rectangle(694,668,35,41); //Professors' Building
-        entryPoints[8]=new Rectangle(1800,0,248,768); // exit for when indoors
-        entryPoints[9]=new Rectangle(0,0,650,768); // minigame popups on the left
-        entryPoints[10]=new Rectangle(38,0,452,768); // minigame popup for gonz red stall
-        entryPoints[11]=new Rectangle(690,0,452,768); // minigame popups for gonz yellow stall
-        entryPoints[12]=new Rectangle(1333,0,452,768); // minigame popups for gonz blue stall
         menuOptions[0]=new Rectangle(512,138,245,294);
         menuOptions[1]=new Rectangle(762,138,241,294);
         menuOptions[2]=new Rectangle(512,438,245,304);
@@ -167,6 +162,12 @@ public class GameFrame extends JFrame implements MouseListener {
                                         break;
                                     }
                                 }
+                                if (quest.getQuestType() == 3) {
+                                    if (((PrintPapers) quest).getStatus() == 1) {
+                                        current = quest;
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -183,6 +184,12 @@ public class GameFrame extends JFrame implements MouseListener {
                                 System.out.println("drawing food");
                             }
                         }
+                        else if(current.getQuestType()==3){
+                            if(((PrintPapers) current).getStatus()==2){
+                                g2d.drawImage(invPaper,me.getInsideMapX()+34,500,null);
+                                System.out.println("drawing papers");
+                            }
+                        }
                     }
                     if (other.getCurrentBuilding() == me.getCurrentBuilding()) {
                         otherInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + other.getColorNum() + "_" + other.getDirection() + "_1.png"));
@@ -195,7 +202,7 @@ public class GameFrame extends JFrame implements MouseListener {
                 else{
                     menu=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/menu_" + me.getCurrentStall() + ".png"));
                     g2d.drawImage(menu,0,0,null);
-                    g2d.setFont(test);
+                    g2d.setFont(customFont);
                     g2d.setFont(g2d.getFont().deriveFont(35f));
                     stall="hi, welcome to \nchili's";
                     int i=0;
@@ -210,14 +217,21 @@ public class GameFrame extends JFrame implements MouseListener {
                     g2d.drawImage(invFood, 35, 629, null);
                 }
             }
-
-            for (int i = 9; i <= 12; i++) {
-                if (entryPoints[i].contains(me.getOnScreenInsideX(), 520)) {
-                    if (minigame != null)
-                        g2d.drawImage(minigame, 0, 0, null);
+            if (minigame != null) {
+                g2d.drawImage(minigame, 0, 0, null);
+                if(me.getCurrentBuilding()==2){
+                    for (Quest quest : me.getQuestList()) {
+                        if (quest.getQuestType() == 3) {
+                            g2d.setFont(customFont);
+                            g2d.setFont(g2d.getFont().deriveFont(75f));
+                            g2d.drawString("Number of Copies:", 38,330);
+                            g2d.setFont(g2d.getFont().deriveFont(100f));
+                            g2d.drawString(((PrintPapers) quest).getQuantity(), 38,430);
+                            break;
+                        }
+                    }
                 }
             }
-
         }
     }
 
@@ -296,6 +310,7 @@ public class GameFrame extends JFrame implements MouseListener {
         KeyListener keyListener=new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
+                int keyCode = e.getKeyCode();
 
             }
 
@@ -303,8 +318,18 @@ public class GameFrame extends JFrame implements MouseListener {
             public void keyPressed(KeyEvent e) {
                 int keyCode = e.getKeyCode();
 
-                // just testing the inventory switch, will delete
-                if (keyCode == KeyEvent.VK_1) {
+                if((keyCode==KeyEvent.VK_1||keyCode==KeyEvent.VK_2||keyCode==KeyEvent.VK_3||keyCode==KeyEvent.VK_4||keyCode==KeyEvent.VK_5||keyCode==KeyEvent.VK_6||keyCode==KeyEvent.VK_7||keyCode==KeyEvent.VK_8||keyCode==KeyEvent.VK_9||keyCode==KeyEvent.VK_0)&&minigame!=null&&me.getCurrentBuilding()==2){
+                    for (Quest quest : me.getQuestList()) {
+                        if (quest.getQuestType() == 3) {
+                            ((PrintPapers) quest).editQuantity(Integer.toString(keyCode-48));
+                            System.out.println("quantity is now "+((PrintPapers) quest).getQuantity());
+                            break;
+                        }
+                    }
+                }
+
+                // just testing quest assignment, will delete
+                else if (keyCode == KeyEvent.VK_1) {
                     int t=(int)(Math.random()*3+5);
                     me.getQuestList().add(new DeliverPapers(me,t));
                     System.out.println("assigned deliver papers to building#"+t);
@@ -315,9 +340,56 @@ public class GameFrame extends JFrame implements MouseListener {
                     System.out.println("assigned deliver order#"+o+" to building#"+t);
                 } else if (keyCode == KeyEvent.VK_3) {
                     int t=(int)(Math.random()*4+5);
-                    int q=(int)(Math.random()*9+1);
+                    int q=(int)(Math.random()*25+5);
                     me.getQuestList().add(new PrintPapers(me,t,q));
                     System.out.println("assigned deliver "+q+" papers to building#"+t);
+                }
+
+                if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_Z) {
+                    if (me.getCurrentBuilding() == 0) {
+                        for (int i = 0; i < 8; i++) {
+                            if (entryPoints[i].contains(me.getX(), me.getY()))
+                                me.enterBuilding(playerID, i + 1);
+                        }
+                    } else {
+                        if (me.getInsideMapX() == -1024 && me.getInsideX() > 820)
+                            me.leaveBuilding();
+                        else if (me.getCurrentBuilding() == 4 && me.getCurrentStall() == 0) {
+                            if (me.getInsideX() < 381 && me.getInsideX() > 26 && me.getInsideMapX() == 0) {
+                                me.setCurrentStall(1);
+                            } else if (me.getInsideMapX() < -210 && me.getInsideMapX() > -577) {
+                                me.setCurrentStall(2);
+                            } else if (me.getInsideMapX() < -855 && me.getInsideX() < 657) {
+                                me.setCurrentStall(3);
+                            }
+                        }
+                        else if (me.getInsideMapX()>-100) {
+                            if (me.getCurrentBuilding() == 2 || me.getCurrentBuilding() == 3) {
+                                if (minigame == null)
+                                    minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
+                                else {
+                                    if (me.getCurrentBuilding() == 2) {
+                                        for (Quest quest : me.getQuestList()) {
+                                            if (quest.getQuestType() == 3 && !(((PrintPapers) quest).getQuantity().equals(""))) {
+                                                ((PrintPapers) quest).takePapers();
+                                                System.out.println("took papers");
+                                            }
+                                        }
+                                    }
+                                    minigame = null;
+                                }
+                            }else if (me.getInsideMapX() == 0 && me.getInsideX() < 230) {
+                                if (me.getCurrentBuilding() == 5 || me.getCurrentBuilding() == 6 || me.getCurrentBuilding() == 7)
+                                    minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/whiteboard.png"));
+                                else if (me.getCurrentBuilding() == 1) {
+                                    if (minigame == null)
+                                        minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
+                                    else
+                                        minigame = null;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if(keyCode==KeyEvent.VK_I){
@@ -349,49 +421,23 @@ public class GameFrame extends JFrame implements MouseListener {
                                     }
                                     break;
                                 }
+                                if(q.getQuestType()==3&&q.getTargetBuildingNum()==me.getCurrentBuilding()&&((PrintPapers) q).getStatus()==1){
+                                    if(((PrintPapers)q).hasCorrectQuantity()) {
+                                        ((PrintPapers) q).placePapers();
+                                        System.out.println("placed papers");
+                                    }
+                                    else{
+                                        ((PrintPapers)q).resetQuest();
+                                        System.out.println("wrong quantity, try again");
+                                    }
+                                    break;
+                                }
                             }
                         }
                     }
                 }
 
-                if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_Z) {
-                    if (me.getCurrentBuilding() == 0) {
-                        for (int i = 0; i < 8; i++) {
-                            if (entryPoints[i].contains(me.getX(), me.getY()))
-                                me.enterBuilding(playerID, i + 1);
-                        }
-                    } else if (me.getCurrentBuilding() != 0 && me.getCurrentBuilding() < 9)
-                    {
-                        if (entryPoints[8].contains(me.getOnScreenInsideX(), 550))
-                            me.leaveBuilding();
-                        else if(me.getCurrentBuilding()==4&&me.getCurrentStall()==0){
-                            if(me.getInsideX()<381&&me.getInsideX()>26&&me.getInsideMapX()==0) {
-                                me.setCurrentStall(1);
-                            }
-                            else if(me.getInsideMapX()<-210&&me.getInsideMapX()>-577){
-                                me.setCurrentStall(2);
-                            }
-                            else if(me.getInsideMapX()<-855&&me.getInsideX()<657){
-                                me.setCurrentStall(3);
-                            }
-                        } else if (entryPoints[9].contains(me.getOnScreenInsideX(), 550)) {
-                            // if player is in the sic buildings
-                            if (me.getCurrentBuilding() == 5 || me.getCurrentBuilding() == 6 || me.getCurrentBuilding() == 7)
-                                minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/whiteboard.png"));
-                            else
-                                minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
-                        }
-                     }
-
-                }
-                else if (keyCode == KeyEvent.VK_X) {
-                    if (minigame != null) {
-                        minigame = null;
-                        drawingComponent.repaint();
-                        System.out.println("Minigame closed");
-                    }
-                }
-                else if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
+                if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
                     if (me.getCurrentBuilding() == 0) {
                         up = true;
                         me.setDirection(1);
