@@ -27,6 +27,7 @@ public class GameFrame extends JFrame implements MouseListener {
     private WriteToServer wtsRunnable;
     private Rectangle[] paths,entryPoints,menuOptions;
     private Quest current;
+    private Font test;
 
     public GameFrame(int w,int h){
         width=w;
@@ -39,6 +40,7 @@ public class GameFrame extends JFrame implements MouseListener {
         entryPoints=new Rectangle[8];
         menuOptions=new Rectangle[4];
         this.addMouseListener(this);
+        test=new Font("Calibri",Font.PLAIN,30);
 
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
         invPaper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_paper.png"));
