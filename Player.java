@@ -1,7 +1,9 @@
+import java.util.ArrayList;
+
 public class Player {
 
-    private int x,y,prevX,prevY,colorNum,currentBuilding,insideX,insideY,insideMapX,itemNum;
-    private boolean faceUp,faceDown,faceLeft;
+    private int x,y,prevX,prevY,colorNum,direction,currentBuilding,insideX,insideMapX,itemNum,points;
+    private ArrayList <Quest> quests;
 
     public Player(int a,int b,int c,int d){
         x=a;
@@ -10,27 +12,20 @@ public class Player {
         prevY=b;
         colorNum=c;
         currentBuilding = 0;
-        if(d==1){
-            faceUp=true;
-            faceDown=false;
-            faceLeft=false;
-        }
-        else{
-            faceUp=false;
-            faceDown=true;
-            faceLeft=false;
-        }
+        points=0;
+        quests=new ArrayList<>();
+        if(d==1)
+            direction=1;
+        else
+            direction=2;
     }
 
-    public int direction(){
-        if(faceUp)
-            return 1;
-        else if(faceDown)
-            return 2;
-        else if(faceLeft)
-            return 3;
-        else
-            return 4;
+    public void setDirection(int i){
+        direction=i;
+    }
+
+    public int getDirection(){
+        return direction;
     }
 
     public void moveH(int n){
@@ -115,10 +110,6 @@ public class Player {
         insideX=n;
     }
 
-    public void setInsideY(int n){
-        insideY=n;
-    }
-
     public void setInsideMapX(int n){
         insideMapX=n;
     }
@@ -127,78 +118,50 @@ public class Player {
         return insideX;
     }
 
-    public int getInsideY(){
-        return insideY;
-    }
-
     public int getInsideMapX(){
         return insideMapX;
-    }
-
-    public void lookUp(){
-        faceUp=true;
-        faceDown=false;
-        faceLeft=false;
-    }
-
-    public void lookDown(){
-        faceUp=false;
-        faceDown=true;
-        faceLeft=false;
-    }
-
-    public void lookLeft(){
-        faceUp=false;
-        faceDown=false;
-        faceLeft=true;
-    }
-
-    public void lookRight(){
-        faceUp=false;
-        faceDown=false;
-        faceLeft=false;
     }
 
     public int getCurrentBuilding() {return currentBuilding;}
 
     public void leaveBuilding(){
         if (getCurrentBuilding()==1) {
-            lookDown();
+            setDirection(2);
             setX(191);
             setY(172);
         }
         else if(getCurrentBuilding()==2) {
-            lookLeft();
+            setDirection(3);
             setX(501);
             setY(316);
         }
         else if (getCurrentBuilding()==3) {
-            lookRight();
+            setDirection(4);
             setX(409);
             setY(367);
         }
         else if(getCurrentBuilding()==4) {
-            lookUp();
+            setDirection(1);
             setX(444);
             setY(626);
         }
         else if(getCurrentBuilding()==5){
-            lookLeft();
+            setDirection(3);
             setX(742);
             setY(107);
         }
         else if (getCurrentBuilding()==6){
-            lookLeft();
+            setDirection(3);
             setX(749);
             setY(249);
         }
         else if (getCurrentBuilding()==7) {
-            lookLeft();
+            setDirection(3);
             setX(766);
             setY(407);
         }
         else {
-            lookLeft();
+            setDirection(3);
             setX(701);
             setY(668);
         }
@@ -207,8 +170,7 @@ public class Player {
 
     public void enterBuilding(int playerNum,int bldgNum){
         insideX=924;
-        insideY=471;
-        lookLeft();
+        setDirection(3);
         insideMapX=-1024;
         if (bldgNum==1){
             if(playerNum==1){
@@ -292,13 +254,27 @@ public class Player {
         }
         currentBuilding=bldgNum;
     }
+
     public int getItemNum(){return itemNum;}
 
     public void receiveItem (int n)
     {
-
-        if (n == 1 || n ==2)
             itemNum = n;
     }
-    public void giveItem () {itemNum =0;}
+    public void giveItem () {
+        itemNum =0;
+    }
+
+    public void addPoints(int num){
+        points+=num;
+    }
+
+    public int getPoints(){
+        return points;
+    }
+
+    public ArrayList<Quest> getQuestList(){
+        return quests;
+    }
+
 }

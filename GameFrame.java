@@ -23,13 +23,13 @@ public class GameFrame extends JFrame {
     private Player me,other;
     private Timer animationTimer;
     private boolean up,down,left,right;
-    private Image mySprite,otherSprite,map,myInsideSprite,myInsideBody,otherInsideSprite,otherInsideBody,insideMap,paper,food;
+    private Image mySprite,otherSprite,map,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,paper,food;
     private DrawingComponent drawingComponent;
     private Socket socket;
     private ReadFromServer rfsRunnable;
     private WriteToServer wtsRunnable;
     private Rectangle[] paths,entryPoints;
-    //private String myIconText,otherIconText;
+    private Quest current;
 
     public GameFrame(int w,int h){
         width=w;
@@ -42,8 +42,10 @@ public class GameFrame extends JFrame {
         entryPoints=new Rectangle[8];
 
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
-        paper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/paper.png"));
-        food = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/food.png"));
+        invPaper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_paper.png"));
+        invFood = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_food.png"));
+        //paper=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/paper.png"));
+        //food=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/food.png"));
     }
 
     public void setUpGUI(){
@@ -76,8 +78,6 @@ public class GameFrame extends JFrame {
         entryPoints[6]=new Rectangle(759,401,35,42); //SIC-C
         entryPoints[7]=new Rectangle(694,668,35,41); //Professors' Building
         //make code that assigns sprites depending on what the player and opponent chose. something with arrays
-        //myIconText = "/assets/player_"+me.getColorNum()+"_"+me.direction()+".png";
-        //otherIconText="/assets/player_"+other.getColorNum()+"_"+other.direction()+".png";
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
@@ -111,32 +111,62 @@ public class GameFrame extends JFrame {
             //AffineTransform reset = g2d.getTransform();
             if(me.getCurrentBuilding()==0) {
                 g2d.drawImage(map, 0, 0, null);
-                mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.direction() + ".png"));
-                otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.direction() + ".png"));
+                mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.getDirection() + ".png"));
+                otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
                 g2d.drawImage(mySprite, me.getX(), me.getY(), null);
-                //g2d.setTransform(reset);
                 g2d.drawImage(otherSprite, other.getX(), other.getY(), null);
                 repaint();
             }
             else {
                 insideMap=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/interior_"+me.getCurrentBuilding()+".png"));
                 g2d.drawImage(insideMap, me.getInsideMapX(), 0, null);
+                if(me.getCurrentBuilding()==8){
+                    Quest dp=null;
+                    for(Quest q : me.getQuestList()){
+                        if(q.getQuestType()==1) {
+                            dp=q;
+                            break;
+                        }
+                    }
+                    if(dp!=null){
+                        if(((DeliverPapers) dp).getStatus()==0) {
+                            g2d.drawImage(invPaper, me.getInsideMapX() + 34, 500, null);
+                            System.out.println("drawing papers");
+                        }
+                    }
+                }
+                if(me.getCurrentBuilding()!=0&&me.getItemNum()!=0){
+                    for(Quest quest : me.getQuestList()){
+                        if(quest.getTargetBuildingNum()==me.getCurrentBuilding()) {
+                            if(quest.getQuestType()==1) {
+                                if (((DeliverPapers) quest).getStatus() == 1) {
+                                    current = quest;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if(current!=null){
+                    if(current.getQuestType()==1) {
+                        if (((DeliverPapers) current).getStatus() == 2) {
+                            g2d.drawImage(invPaper, me.getInsideMapX() + 34, 500, null);
+                            System.out.println("drawing papers");
+                        }
+                    }
+                }
                 if(other.getCurrentBuilding()==me.getCurrentBuilding()){
-                    otherInsideSprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_"+other.getColorNum()+"_"+other.direction()+"_1.png"));
-                    g2d.drawImage(otherInsideSprite, other.getInsideX(), other.getInsideY(), null);
+                    otherInsideSprite=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_"+other.getColorNum()+"_"+other.getDirection()+"_1.png"));
+                    g2d.drawImage(otherInsideSprite, other.getInsideX(), 471, null);
                 }
-                try {
-                    myInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + me.getColorNum() + "_" + me.direction() + "_1.png"));
-                    g2d.drawImage(myInsideSprite, me.getInsideX(), me.getInsideY(), null);
-                }catch (Exception e){
-                    System.out.println("/assets/playerIn_" + me.getColorNum() + "_" + me.direction() + "_1.png");
-                }
+                myInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + me.getColorNum() + "_" + me.getDirection() + "_1.png"));
+                g2d.drawImage(myInsideSprite, me.getInsideX(), 471, null);
                 repaint();
             }
             if (me.getItemNum() == 1) {
-                g2d.drawImage(paper, 35, 629, null);
+                g2d.drawImage(invPaper, 35, 629, null);
             } else if (me.getItemNum() == 2) {
-                g2d.drawImage(food, 35, 629, null);
+                g2d.drawImage(invFood, 35, 629, null);
             }
         }
     }
@@ -189,7 +219,7 @@ public class GameFrame extends JFrame {
                         }
                     }
                     else
-                        me.moveH(-speed-2);
+                        me.moveH(-speed-3);
                 }
                 if(right) {
                     if(me.getCurrentBuilding()==0) {
@@ -200,11 +230,11 @@ public class GameFrame extends JFrame {
                         }
                     }
                     else
-                        me.moveH(speed+2);
+                        me.moveH(speed+3);
                 }
 
                 drawingComponent.repaint();
-                System.out.println(me.getX()+","+me.getY());
+                //System.out.println(me.getX()+","+me.getY());
             }
         };
         animationTimer=new Timer(interval,actionListener);
@@ -225,11 +255,36 @@ public class GameFrame extends JFrame {
 
                 // just testing the inventory switch, will delete
                 if (keyCode == KeyEvent.VK_1) {
-                    me.receiveItem(1);
+                    int g=(int)(Math.random()*3+5);
+                    me.getQuestList().add(new DeliverPapers(me,g));
+                    System.out.println("assigned deliver papers to building#"+g);
                 } else if (keyCode == KeyEvent.VK_2) {
                     me.receiveItem(2);
                 } else if (keyCode == KeyEvent.VK_0) {
                     me.giveItem();
+                }
+
+                if(keyCode==KeyEvent.VK_I){
+                    if(me.getInsideMapX()==0&&me.getInsideX()<230) {
+                        if (me.getItemNum() == 0) {
+                            for (Quest q : me.getQuestList()) {
+                                if (q.getQuestType() == 1) {
+                                    ((DeliverPapers) q).takePaper();
+                                    System.out.println("took papers");
+                                    break;
+                                }
+                            }
+                        }
+                        else{
+                            for (Quest q : me.getQuestList()) {
+                                if (q.getQuestType() == 1 && q.getTargetBuildingNum()==me.getCurrentBuilding()) {
+                                    ((DeliverPapers) q).placePaper();
+                                    System.out.println("placed papers");
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if (keyCode == KeyEvent.VK_ENTER) {
@@ -243,19 +298,19 @@ public class GameFrame extends JFrame {
                 } else if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
                     if (me.getCurrentBuilding() == 0) {
                         up = true;
-                        me.lookUp();
+                        me.setDirection(1);
                     }
                 } else if (keyCode == KeyEvent.VK_DOWN || keyCode == KeyEvent.VK_S) {
                     if (me.getCurrentBuilding() == 0) {
                         down = true;
-                        me.lookDown();
+                        me.setDirection(2);
                     }
                 } else if (keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_A) {
                     left = true;
-                    me.lookLeft();
+                    me.setDirection(3);
                 } else if (keyCode == KeyEvent.VK_RIGHT || keyCode == KeyEvent.VK_D) {
                     right = true;
-                    me.lookRight();
+                    me.setDirection(4);
                 }
             }
 
@@ -291,8 +346,8 @@ public class GameFrame extends JFrame {
                     {
                         other.setX(dataIn.readInt());
                         other.setY(dataIn.readInt());
+                        other.setDirection(dataIn.readInt());
                         other.setInsideX(dataIn.readInt());
-                        other.setInsideY(dataIn.readInt());
                         other.setInsideMapX(dataIn.readInt());
                     }
                 }
@@ -332,8 +387,8 @@ public class GameFrame extends JFrame {
                     {
                         dataOut.writeInt(me.getX());
                         dataOut.writeInt(me.getY());
+                        dataOut.writeInt(me.getDirection());
                         dataOut.writeInt(me.getInsideX());
-                        dataOut.writeInt(me.getInsideY());
                         dataOut.writeInt(me.getInsideMapX());
                         dataOut.flush();
                     }
