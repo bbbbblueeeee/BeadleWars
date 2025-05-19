@@ -13,6 +13,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.*;
 import java.net.*;
+import java.util.TimerTask;
 
 public class GameFrame extends JFrame implements MouseListener {
 
@@ -30,6 +31,12 @@ public class GameFrame extends JFrame implements MouseListener {
     private Quest current;
     private Font customFont;
     private String stall;
+
+    private Timer clockTimer;
+    private int currentHour = 7;
+    private int currentMinute = 50;
+    private boolean showEndScreen = false;
+    private Image endScreen = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/endscreen.png"));
 
     public GameFrame(int w,int h){
         width=w;
@@ -97,6 +104,7 @@ public class GameFrame extends JFrame implements MouseListener {
         this.pack();
         this.setVisible(true);
         this.setUpTimer();
+        this.setUpTimer2();
         this.setUpKeyListener();
     }
 
@@ -256,6 +264,19 @@ public class GameFrame extends JFrame implements MouseListener {
                     }
                 }
             }
+
+            g2d.setColor(Color.white);
+            g2d.setFont(customFont);
+            g2d.setFont(g2d.getFont().deriveFont(35f));
+            String clockTime = String.format("Time : %02d:%02d", currentHour, currentMinute);
+            g2d.drawString(clockTime, 840, 25);
+
+            // If game time is over, show end screen
+            if (showEndScreen) {
+                g2d.drawImage(endScreen, 0, 0, null);
+                g2d.drawImage(mySprite, 500, 150, null);
+                g2d.drawImage(otherSprite, 550, 150, null);
+            }
         }
     }
 
@@ -278,6 +299,38 @@ public class GameFrame extends JFrame implements MouseListener {
         return false;
     }
 
+    public boolean isColliding(Player other) {
+        return !(me.getX() + 28 <= other.getX() ||
+                me.getX() >= other.getX() + 28 ||
+                me.getY() + 28 <= other.getY() ||
+                me.getY() >= other.getY() + 28);
+    }
+
+    private void setUpTimer2() {
+        // + 10 minutes every 2 seconds!!
+        clockTimer = new Timer(2000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                currentMinute += 10;
+                if (currentMinute == 60) {
+                    currentMinute = 0;
+                    currentHour++;
+                }
+
+                if (currentHour == 17) {
+                    clockTimer.stop();
+                    showEndScreen = true;
+                }
+
+                repaint(); // Update screen with new time
+            }
+        });
+
+        clockTimer.setInitialDelay(0);
+        clockTimer.start();
+    }
+
+
     private void setUpTimer(){
         int interval=10;
         ActionListener actionListener=new ActionListener() {
@@ -286,14 +339,14 @@ public class GameFrame extends JFrame implements MouseListener {
                 int speed=3;
                 if (up) {
                     me.moveV(-speed);
-                    if (!isOnPath(me.getX(),me.getY())){
+                    if (!isOnPath(me.getX(),me.getY()) || isColliding(other)){
                         me.setX(me.getPrevX());
                         me.setY(me.getPrevY());
                     }
                 }
                 if (down) {
                     me.moveV(speed);
-                    if (!isOnPath(me.getX(), me.getY())) {
+                    if (!isOnPath(me.getX(), me.getY())|| isColliding(other)) {
                         me.setX(me.getPrevX());
                         me.setY(me.getPrevY());
                     }
@@ -301,7 +354,7 @@ public class GameFrame extends JFrame implements MouseListener {
                 if (left) {
                     if (me.getCurrentBuilding()==0) {
                         me.moveH(-speed);
-                        if (!isOnPath(me.getX(), me.getY())) {
+                        if (!isOnPath(me.getX(), me.getY())|| isColliding(other)) {
                             me.setX(me.getPrevX());
                             me.setY(me.getPrevY());
                         }
@@ -312,7 +365,7 @@ public class GameFrame extends JFrame implements MouseListener {
                 if(right) {
                     if(me.getCurrentBuilding()==0) {
                         me.moveH(speed);
-                        if (!isOnPath(me.getX(), me.getY())) {
+                        if (!isOnPath(me.getX(), me.getY())|| isColliding(other)) {
                             me.setX(me.getPrevX());
                             me.setY(me.getPrevY());
                         }
@@ -674,6 +727,7 @@ public class GameFrame extends JFrame implements MouseListener {
                 System.out.println("IOException from WTS run()");
             }
         }
+
     }
 
     public static void main(String[] args) {
