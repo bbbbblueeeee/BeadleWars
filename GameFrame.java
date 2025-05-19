@@ -231,6 +231,25 @@ public class GameFrame extends JFrame implements MouseListener {
                         }
                     }
                 }
+                if(me.getCurrentBuilding()==1){
+                    for (Quest quest : me.getQuestList()) {
+                        if (quest.getQuestType() == 4) {
+                            g2d.setFont(customFont);
+                            g2d.setFont(g2d.getFont().deriveFont(20f));
+                            if(((SendEmail) quest).sentEmail){
+                                g2d.drawString("Your email has been sent!",346,254);
+                            }
+                            else {
+                                int i = 0;
+                                for (String line : ((SendEmail) quest).getEmailArray()[((SendEmail) quest).getKeyCount()].split("\n")) {
+                                    g2d.drawString(line, 346, 254 + i);
+                                    i += 25;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -343,9 +362,34 @@ public class GameFrame extends JFrame implements MouseListener {
                     int q=(int)(Math.random()*25+5);
                     me.getQuestList().add(new PrintPapers(me,t,q));
                     System.out.println("assigned deliver "+q+" papers to building#"+t);
+                } else if(keyCode==KeyEvent.VK_4){
+                    me.getQuestList().add(new SendEmail(me,0));
+                    System.out.println("assigned send email#"+0);
                 }
 
-                if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_Z) {
+                Quest emailQuest=null;
+                for (Quest quest : me.getQuestList()) {
+                    if (quest.getQuestType() == 4) {
+                        emailQuest=quest;
+                        break;
+                    }
+                }
+
+                if(me.getCurrentBuilding()==1&&minigame!=null&&emailQuest!=null&&!(((SendEmail) emailQuest).hasSentEmail())) {
+                    if (((SendEmail) emailQuest).getKeyCount() < ((SendEmail) emailQuest).getEmailArray().length-1) {
+                        if (keyCode > 64 && keyCode < 91) {
+                            ((SendEmail) emailQuest).incrementKeyCount();
+                            System.out.println("keyCount is now " + ((SendEmail) emailQuest).getKeyCount());
+                        }
+                    }
+                    else {
+                        if (keyCode == KeyEvent.VK_ENTER) {
+                            ((SendEmail) emailQuest).sendEmail();
+                            System.out.println("sent email!");
+                        }
+                    }
+                }
+                else if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_Z) {
                     if (me.getCurrentBuilding() == 0) {
                         for (int i = 0; i < 8; i++) {
                             if (entryPoints[i].contains(me.getX(), me.getY()))
