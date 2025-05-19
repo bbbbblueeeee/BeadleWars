@@ -12,7 +12,7 @@ public class GameServer {
     private Socket p1Socket,p2Socket;
     private ReadFromClient p1ReadRunnable,p2ReadRunnable;
     private WriteToClient p1WriteRunnable,p2WriteRunnable;
-    private int p1x,p1y,p1d,p2d,p1ix,p1imx,p2x,p2y,p2ix,p2imx; //x and y coords for players
+    private int p1x,p1y,p1d,p1b,p1ix,p1imx,p2x,p2y,p2d,p2b,p2ix,p2imx; //x and y coords for players
 
     public GameServer(){
         System.out.println("==== GAME SERVER ====");
@@ -92,6 +92,7 @@ public class GameServer {
                         p1x = dataIn.readInt();
                         p1y = dataIn.readInt();
                         p1d=dataIn.readInt();
+                        p1b=dataIn.readInt();
                         p1ix=dataIn.readInt();
                         p1imx=dataIn.readInt();
                     }
@@ -100,6 +101,7 @@ public class GameServer {
                         p2x = dataIn.readInt();
                         p2y = dataIn.readInt();
                         p2d=dataIn.readInt();
+                        p2b=dataIn.readInt();
                         p2ix=dataIn.readInt();
                         p2imx=dataIn.readInt();
                     }
@@ -129,6 +131,7 @@ public class GameServer {
                         dataOut.writeInt(p2x);
                         dataOut.writeInt(p2y);
                         dataOut.writeInt(p2d);
+                        dataOut.writeInt(p2b);
                         dataOut.writeInt(p2ix);
                         dataOut.writeInt(p2imx);
                         dataOut.flush();
@@ -138,6 +141,7 @@ public class GameServer {
                         dataOut.writeInt(p1x);
                         dataOut.writeInt(p1y);
                         dataOut.writeInt(p1d);
+                        dataOut.writeInt(p1b);
                         dataOut.writeInt(p1ix);
                         dataOut.writeInt(p1imx);
                         dataOut.flush();

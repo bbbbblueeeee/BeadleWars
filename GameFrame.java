@@ -18,10 +18,10 @@ import java.util.TimerTask;
 
 public class GameFrame extends JFrame implements MouseListener {
 
-    private int width,height,playerID;
+    private int width,height,playerID,otherBuilding;
     private Container contentPane;
     private Player me,other;
-    private Timer animationTimer;
+    private Timer animationTimer,clockTimer;
     private boolean up,down,left,right;
     private Image mySprite,otherSprite,map,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,minigame,menu,itemOnMap;
     private DrawingComponent drawingComponent;
@@ -33,7 +33,6 @@ public class GameFrame extends JFrame implements MouseListener {
     private Font customFont;
     private String stall;
 
-    private Timer clockTimer;
     private int currentHour = 7;
     private int currentMinute = 50;
     private boolean showEndScreen = false;
@@ -111,11 +110,10 @@ public class GameFrame extends JFrame implements MouseListener {
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
-        this.setVisible(true);
-        clip.start();
-        this.setUpTimer();
-        this.setUpTimer2();
         this.setUpKeyListener();
+        this.setVisible(true);
+        this.setUpTimer();
+
 
     }
 
@@ -185,9 +183,11 @@ public class GameFrame extends JFrame implements MouseListener {
                         }
                     }
                     //if the player and their opponent are in the same building: draw the opponent's indoor sprite
-                    if (other.getCurrentBuilding() == me.getCurrentBuilding()) {
+                    if (otherBuilding == me.getCurrentBuilding()) {
+                        int myAbsInsideX=me.getInsideX()-me.getInsideMapX();
+                        int otherAbsInsideX=other.getInsideX()-other.getInsideMapX();
                         otherInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + other.getColorNum() + "_" + other.getDirection() + "_1.png"));
-                        g2d.drawImage(otherInsideSprite, other.getInsideX(), 411, null);
+                        g2d.drawImage(otherInsideSprite, me.getInsideX()-myAbsInsideX+otherAbsInsideX, 411, null);
                     }
                     myInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + me.getColorNum() + "_" + me.getDirection() + "_1.png"));
                     g2d.drawImage(myInsideSprite, me.getInsideX(), 411, null);
@@ -304,7 +304,7 @@ public class GameFrame extends JFrame implements MouseListener {
 
     private boolean isOnPath(int x,int y){
         for (Rectangle path : paths){
-            if(path.contains(x,y))
+            if(path.hasPlayer(x,y))
                 return true;
         }
         return false;
@@ -490,7 +490,7 @@ public class GameFrame extends JFrame implements MouseListener {
                     if (me.getCurrentBuilding() == 0) {
                         for (int i = 0; i < 8; i++) {
                             //if the player is inside an entryPoint, enter its corresponding building
-                            if (entryPoints[i].contains(me.getX(), me.getY()))
+                            if (entryPoints[i].hasPlayer(me.getX(), me.getY()))
                                 me.enterBuilding(playerID, i + 1);
                         }
                     }
@@ -624,18 +624,22 @@ public class GameFrame extends JFrame implements MouseListener {
                     right=false;
             }
         };
-        this.addKeyListener(keyListener);
         contentPane.setFocusable(true);
+        contentPane.requestFocusInWindow();
+        contentPane.addKeyListener(keyListener);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        System.out.println("Mouse: "+MouseInfo.getPointerInfo().getLocation().getX()+","+MouseInfo.getPointerInfo().getLocation().getY());
+        System.out.println("Frame: "+GameFrame.this.getLocation().getX()+","+GameFrame.this.getLocation().getY());
+        //System.out.println((int)MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX()+","+((int)MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY()));
         //if the cursor is in the lower right portion of the menu: leave the current stall
-        if(menuOptions[3].contains((int)MouseInfo.getPointerInfo().getLocation().getX(),(int)MouseInfo.getPointerInfo().getLocation().getY()))
+        if(menuOptions[3].contains((int)MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX(),(int)MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY()))
             me.setCurrentStall(0);
         //if the cursor is in any other portion of the menu
         for(int i=0;i<3;i++) {
-            if (menuOptions[i].contains((int) MouseInfo.getPointerInfo().getLocation().getX(), (int) MouseInfo.getPointerInfo().getLocation().getY())) {
+            if (menuOptions[i].contains((int) MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX(), (int) MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY())) {
                 //if the player is in a stall, there is an active OrderFood quest, and that quest is in the phase where the player has not yet taken an order: take the corresponding order and leave the stall
                 if (me.getCurrentStall() != 0&&me.findQuestType(2)!=null&&((DeliverQuest) me.findQuestType(2)).getStatus()==0) {
                     ((OrderFood) me.findQuestType(2)).takeItem(me.getCurrentStall() * 3 - (2-i));
@@ -677,13 +681,18 @@ public class GameFrame extends JFrame implements MouseListener {
         public void run(){
             try{
                 while (true){
-                    if (other != null)
-                    {
-                        other.setX(dataIn.readInt());
-                        other.setY(dataIn.readInt());
-                        other.setDirection(dataIn.readInt());
-                        other.setInsideX(dataIn.readInt());
-                        other.setInsideMapX(dataIn.readInt());
+                    int otherX=dataIn.readInt();
+                    int otherY=dataIn.readInt();
+                    int otherDirection=dataIn.readInt();
+                    otherBuilding=dataIn.readInt();
+                    int otherInsideX=dataIn.readInt();
+                    int otherInsideMapX=dataIn.readInt();
+                    if(other!=null){
+                        other.setX(otherX);
+                        other.setY(otherY);
+                        other.setDirection(otherDirection);
+                        other.setInsideX(otherInsideX);
+                        other.setInsideMapX(otherInsideMapX);
                     }
                 }
 
@@ -702,6 +711,8 @@ public class GameFrame extends JFrame implements MouseListener {
                 Thread writeThread = new Thread(wtsRunnable);
                 readThread.start();
                 writeThread.start();
+                clip.start();
+                GameFrame.this.setUpTimer2();
             }catch(IOException ex){
                 System.out.println("IOExceptoin from waitForStartMsg");
             }
@@ -723,6 +734,7 @@ public class GameFrame extends JFrame implements MouseListener {
                         dataOut.writeInt(me.getX());
                         dataOut.writeInt(me.getY());
                         dataOut.writeInt(me.getDirection());
+                        dataOut.writeInt(me.getCurrentBuilding());
                         dataOut.writeInt(me.getInsideX());
                         dataOut.writeInt(me.getInsideMapX());
                         dataOut.flush();
