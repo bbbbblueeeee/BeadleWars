@@ -2,6 +2,7 @@ import com.sun.jdi.event.ExceptionEvent;
 import org.w3c.dom.css.Rect;
 
 import javax.print.attribute.standard.DialogOwner;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -37,8 +38,11 @@ public class GameFrame extends JFrame implements MouseListener {
     private int currentMinute = 50;
     private boolean showEndScreen = false;
     private Image endScreen = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/endscreen.png"));
+    private File file;
+    private AudioInputStream audioStream;
+    private Clip clip;
 
-    public GameFrame(int w,int h){
+    public GameFrame(int w,int h) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         width=w;
         height=h;
         up=false;
@@ -60,6 +64,10 @@ public class GameFrame extends JFrame implements MouseListener {
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
         invPaper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_paper.png"));
         invFood = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_food.png"));
+        file = new File("Ooblets!.wav");
+        audioStream = AudioSystem.getAudioInputStream(file);
+        clip = AudioSystem.getClip();
+        clip.open(audioStream);
     }
 
     public void setUpGUI(){
@@ -103,9 +111,11 @@ public class GameFrame extends JFrame implements MouseListener {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
         this.setVisible(true);
+        clip.start();
         this.setUpTimer();
         this.setUpTimer2();
         this.setUpKeyListener();
+
     }
 
     private void connectToServer(){
@@ -730,7 +740,7 @@ public class GameFrame extends JFrame implements MouseListener {
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         GameFrame gameFrame=new GameFrame(1024,768);
         gameFrame.connectToServer();
         gameFrame.setUpGUI();
