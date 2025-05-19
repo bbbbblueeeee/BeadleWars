@@ -150,23 +150,25 @@ public class GameFrame extends JFrame implements MouseListener {
                     if (me.getCurrentBuilding() != 0 && me.getItemNum() != 0) {
                         for (Quest quest : me.getQuestList()) {
                             if (quest.getTargetBuildingNum() == me.getCurrentBuilding()) {
-                                if (quest.getQuestType() == 1) {
-                                    if (((DeliverPapers) quest).getStatus() == 1) {
-                                        current = quest;
-                                        break;
-                                    }
+                                if (quest.getQuestType() == 1&&((DeliverPapers) quest).getStatus() == 1) {
+                                    current = quest;
+                                    break;
                                 }
-                                else if(quest.getQuestType()==2){
-                                    if(((OrderFood) quest).getStatus()==1){
-                                        current=quest;
-                                        break;
-                                    }
+                                else if(quest.getQuestType()==2&&((OrderFood) quest).getStatus()==1){
+                                    current=quest;
+                                    break;
                                 }
-                                if (quest.getQuestType() == 3) {
-                                    if (((PrintPapers) quest).getStatus() == 1) {
-                                        current = quest;
-                                        break;
-                                    }
+                                else if (quest.getQuestType() == 3&&((PrintPapers) quest).getStatus() == 1) {
+                                    current = quest;
+                                    break;
+                                }
+                                else if(quest.getQuestType()==4&&!quest.isCompleted()){
+                                    current=quest;
+                                    break;
+                                }
+                                else if(quest.getQuestType()==5&&!quest.isCompleted()){
+                                    current=quest;
+                                    break;
                                 }
                             }
                         }
@@ -232,17 +234,47 @@ public class GameFrame extends JFrame implements MouseListener {
                         }
                     }
                 }
+                if(me.getCurrentBuilding()==3){
+                    for (Quest quest : me.getQuestList()) {
+                        if (quest.getQuestType() == 5) {
+                            g2d.setFont(customFont);
+                            g2d.setFont(g2d.getFont().deriveFont(100f));
+                            g2d.drawString(((PictureCats) quest).getTakenPics()+"!", 900,100);
+                            break;
+                        }
+                    }
+                }
                 if(me.getCurrentBuilding()==1){
                     for (Quest quest : me.getQuestList()) {
                         if (quest.getQuestType() == 4) {
                             g2d.setFont(customFont);
                             g2d.setFont(g2d.getFont().deriveFont(20f));
-                            if(((SendEmail) quest).sentEmail){
-                                g2d.drawString("Your email has been sent!",346,254);
+                            if (quest.taskComplete) {
+                                g2d.drawString("Your email has been sent!", 346, 254);
+                            } else {
+                                int i = 0;
+                                for (String line : ((SendEmail) quest).getEmailArray()[((SendEmail) quest).getKeyCount()].split("\n")) {
+                                    g2d.drawString(line, 346, 254 + i);
+                                    i += 25;
+                                }
+                                break;
+                            }
+                        }
+                        else if(quest.getQuestType()==5){
+                            g2d.setFont(customFont);
+                            g2d.setFont(g2d.getFont().deriveFont(20f));
+                            if (quest.taskComplete) {
+                                g2d.drawString("Your email has been sent!", 346, 254);
+                            } else if(((PictureCats) quest).hasWrongAttempt()) {
+                                int i = 0;
+                                for (String line : "Professor:\nDid you not see the number of photographs I asked for? Do it again, and do it properly this time.".split("\n")) {
+                                    g2d.drawString(line, 346, 254 + i);
+                                    i += 25;
+                                }
                             }
                             else {
                                 int i = 0;
-                                for (String line : ((SendEmail) quest).getEmailArray()[((SendEmail) quest).getKeyCount()].split("\n")) {
+                                for (String line : ((PictureCats) quest).getEmailArray()[((PictureCats) quest).getKeyCount()].split("\n")) {
                                     g2d.drawString(line, 346, 254 + i);
                                     i += 25;
                                 }
@@ -338,7 +370,7 @@ public class GameFrame extends JFrame implements MouseListener {
             public void keyPressed(KeyEvent e) {
                 int keyCode = e.getKeyCode();
 
-                if((keyCode==KeyEvent.VK_1||keyCode==KeyEvent.VK_2||keyCode==KeyEvent.VK_3||keyCode==KeyEvent.VK_4||keyCode==KeyEvent.VK_5||keyCode==KeyEvent.VK_6||keyCode==KeyEvent.VK_7||keyCode==KeyEvent.VK_8||keyCode==KeyEvent.VK_9||keyCode==KeyEvent.VK_0)&&minigame!=null&&me.getCurrentBuilding()==2){
+                if(keyCode>47&&keyCode<58&&minigame!=null&&me.getCurrentBuilding()==2){
                     for (Quest quest : me.getQuestList()) {
                         if (quest.getQuestType() == 3) {
                             ((PrintPapers) quest).editQuantity(Integer.toString(keyCode-48));
@@ -366,30 +398,61 @@ public class GameFrame extends JFrame implements MouseListener {
                 } else if(keyCode==KeyEvent.VK_4){
                     me.getQuestList().add(new SendEmail(me,0));
                     System.out.println("assigned send email#"+0);
+                } else if(keyCode==KeyEvent.VK_5){
+                    int p=(int)(Math.random()*11+10);
+                    me.getQuestList().add(new PictureCats(me,p));
+                    System.out.println("assigned picture cats "+p+" times and then send email");
                 }
 
-                Quest emailQuest=null;
-                for (Quest quest : me.getQuestList()) {
-                    if (quest.getQuestType() == 4) {
-                        emailQuest=quest;
-                        break;
+                if(me.getCurrentBuilding()==1&&minigame!=null) {
+                    Quest emailQuest=null;
+                    Quest catQuest=null;
+                    for (Quest quest : me.getQuestList()) {
+                        if (quest.getQuestType() == 4) {
+                            emailQuest=quest;
+                            break;
+                        }
+                        for (Quest q : me.getQuestList()) {
+                            if (q.getQuestType() == 5) {
+                                catQuest=q;
+                                break;
+                            }
+                        }
+                    }
+                    if(emailQuest!=null&&!emailQuest.isCompleted()) {
+                        if (((SendEmail) emailQuest).getKeyCount() < ((SendEmail) emailQuest).getEmailArray().length - 1) {
+                            if (keyCode > 64 && keyCode < 91) {
+                                ((SendEmail) emailQuest).incrementKeyCount();
+                                System.out.println("keyCount is now " + ((SendEmail) emailQuest).getKeyCount());
+                            }
+                        } else {
+                            if (keyCode == KeyEvent.VK_ENTER) {
+                                ((SendEmail) emailQuest).sendEmail();
+                                System.out.println("sent email!");
+                            }
+                        }
+                    }
+                    else if(catQuest!=null&&!catQuest.isCompleted()){
+                        if (((PictureCats) catQuest).getKeyCount() < ((PictureCats) catQuest).getEmailArray().length - 1) {
+                            if (keyCode > 64 && keyCode < 91) {
+                                ((PictureCats) catQuest).incrementKeyCount();
+                                System.out.println("keyCount is now " + ((PictureCats) catQuest).getKeyCount());
+                            }
+                        } else {
+                            if (keyCode == KeyEvent.VK_ENTER) {
+                                if(((PictureCats) catQuest).hasCorrectPhotos()) {
+                                    ((PictureCats) catQuest).sendEmail();
+                                    System.out.println("sent email!");
+                                }
+                                else {
+                                    ((PictureCats) catQuest).resetQuest();
+                                    System.out.println("wrong photos, try again!");
+                                }
+                            }
+                        }
                     }
                 }
 
-                if(me.getCurrentBuilding()==1&&minigame!=null&&emailQuest!=null&&!(((SendEmail) emailQuest).hasSentEmail())) {
-                    if (((SendEmail) emailQuest).getKeyCount() < ((SendEmail) emailQuest).getEmailArray().length-1) {
-                        if (keyCode > 64 && keyCode < 91) {
-                            ((SendEmail) emailQuest).incrementKeyCount();
-                            System.out.println("keyCount is now " + ((SendEmail) emailQuest).getKeyCount());
-                        }
-                    }
-                    else {
-                        if (keyCode == KeyEvent.VK_ENTER) {
-                            ((SendEmail) emailQuest).sendEmail();
-                            System.out.println("sent email!");
-                        }
-                    }
-                }
                 else if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_Z) {
                     if (me.getCurrentBuilding() == 0) {
                         for (int i = 0; i < 8; i++) {
@@ -478,6 +541,16 @@ public class GameFrame extends JFrame implements MouseListener {
                                     break;
                                 }
                             }
+                        }
+                    }
+                }
+
+                if(keyCode==KeyEvent.VK_SPACE&&me.getCurrentBuilding()==3&&minigame!=null){
+                    for (Quest q : me.getQuestList()) {
+                        if (q.getQuestType() == 5) {
+                            ((PictureCats) q).incrementTakenPics();
+                            System.out.println("you've taken a total of "+((PictureCats) q).getTakenPics()+" photos!");
+                            break;
                         }
                     }
                 }

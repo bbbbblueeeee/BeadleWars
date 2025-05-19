@@ -3,7 +3,6 @@ import java.lang.reflect.Array;
 
 public class SendEmail extends Quest{
     public int emailNum,keyCount;
-    public boolean sentEmail;
     public String[][] emails;
     public Player p;
 
@@ -11,8 +10,8 @@ public class SendEmail extends Quest{
         p=player;
         emailNum=n;
         emails=new String[3][];
+        targetBuildingNum=1;
         keyCount=0;
-        sentEmail=false;
         points=200;
         questType=4;
 
@@ -20,11 +19,7 @@ public class SendEmail extends Quest{
     }
 
     public void sendEmail(){
-        sentEmail=true;
-    }
-
-    public boolean hasSentEmail(){
-        return sentEmail;
+        taskComplete=true;
     }
 
     public int getKeyCount(){
