@@ -68,6 +68,7 @@ public class GameFrame extends JFrame implements MouseListener {
         audioStream = AudioSystem.getAudioInputStream(file);
         clip = AudioSystem.getClip();
         clip.open(audioStream);
+        clip.loop(Clip.LOOP_CONTINUOUSLY);
     }
 
     public void setUpGUI(){
