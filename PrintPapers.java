@@ -1,6 +1,6 @@
 import java.awt.event.KeyEvent;
 
-public class PrintPapers extends Quest{
+public class PrintPapers extends Quest implements DeliverQuest{
     public int wantedQuantity;
     public boolean hasPapers;
     public String quantity;
@@ -25,12 +25,12 @@ public class PrintPapers extends Quest{
             return 0;
     }
 
-    public void takePapers(){
+    public void takeItem(int i){
         p.receiveItem(1);
         hasPapers=true;
     }
 
-    public void placePapers(){
+    public void placeItem(){
         p.giveItem();
         taskComplete=true;
     }

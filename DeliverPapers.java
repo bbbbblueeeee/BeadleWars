@@ -1,4 +1,4 @@
-public class DeliverPapers extends Quest {
+public class DeliverPapers extends Quest implements DeliverQuest{
     public boolean hasPaper;
     public Player p;
 
@@ -19,12 +19,12 @@ public class DeliverPapers extends Quest {
             return 0;
     }
 
-    public void takePaper(){
+    public void takeItem(int i){
         p.receiveItem(1);
         hasPaper=true;
     }
 
-    public void placePaper(){
+    public void placeItem(){
         p.giveItem();
         taskComplete=true;
     }

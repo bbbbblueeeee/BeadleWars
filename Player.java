@@ -289,4 +289,12 @@ public class Player {
         currentStall=n;
     }
 
+    public Quest findQuestType(int n){
+        for (Quest q : quests) {
+            if (q.getQuestType() == n)
+                return q;
+        }
+        return null;
+    }
+
 }

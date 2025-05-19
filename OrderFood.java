@@ -1,4 +1,4 @@
-public class OrderFood extends Quest{
+public class OrderFood extends Quest implements DeliverQuest{
     public int wantedOrder,receivedOrder;
     public boolean hasFood;
     public Player p;
@@ -22,13 +22,13 @@ public class OrderFood extends Quest{
             return 0;
     }
 
-    public void takeOrder(int r){
+    public void takeItem(int r){
         p.receiveItem(2);
         receivedOrder=r;
         hasFood=true;
     }
 
-    public void placeOrder(){
+    public void placeItem(){
         p.giveItem();
         taskComplete=true;
     }
