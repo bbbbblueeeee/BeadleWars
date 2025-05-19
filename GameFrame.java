@@ -171,7 +171,8 @@ public class GameFrame extends JFrame implements MouseListener {
                             }
                         }
                     }
-                    if (current != null) {
+
+                    if (current != null&&me.getCurrentBuilding()==current.getTargetBuildingNum()) {
                         if (current.getQuestType() == 1) {
                             if (((DeliverPapers) current).getStatus() == 2) {
                                 g2d.drawImage(invPaper, me.getInsideMapX() + 34, 500, null);
