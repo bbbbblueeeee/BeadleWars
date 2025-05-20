@@ -1,3 +1,4 @@
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 public class Player {
@@ -125,8 +126,6 @@ public class Player {
         return insideMapX;
     }
 
-    public int getOnScreenInsideX() {return insideX - insideMapX;}
-
     public int getCurrentBuilding() {return currentBuilding;}
 
     public void leaveBuilding(){
@@ -173,6 +172,15 @@ public class Player {
         currentBuilding=0;
     }
 
+    public void initializeQuests(){
+        for(int i=0;i<3;i++) {
+            int random = (int) (Math.random() * 5) + 1;
+            while (findQuestType(random) != null)
+                random = (int) (Math.random() * 5) + 1;
+            addQuest(random);
+        }
+    }
+
     public void enterBuilding(int playerNum,int bldgNum){
         insideX=924;
         setDirection(3);
@@ -189,12 +197,12 @@ public class Player {
         }
         else if(bldgNum==2){
             if(playerNum==1){
-                setX(547);
-                setY(280);
+                setX(564);
+                setY(257);
             }
             else {
-                setX(547);
-                setY(339);
+                setX(564);
+                setY(373);
             }
         }
         else if(bldgNum==3){
@@ -209,12 +217,12 @@ public class Player {
         }
         else if(bldgNum==4){
             if(playerNum==1){
-                setX(314);
-                setY(676);
+                setX(240);
+                setY(675);
             }
             else {
-                setX(373);
-                setY(676);
+                setX(299);
+                setY(675);
             }
         }
         else if(bldgNum==5){
@@ -284,7 +292,7 @@ public class Player {
             if(quests.get(i).getQuestType()==q.getQuestType()){
                 for(int j=i;j<quests.size()-1;j++)
                     quests.set(j,quests.get(j+1));
-                quests.remove(quests.size()-1);
+                quests.set(quests.size()-1,null);
                 System.out.println("removed a quest");
             }
         }
@@ -301,6 +309,8 @@ public class Player {
 
     public Quest findQuestType(int n){
         for (Quest q : quests) {
+            if(q==null)
+                break;
             if (q.getQuestType() == n)
                 return q;
         }
@@ -340,6 +350,31 @@ public class Player {
 
     public void setCurrentBuilding(int i){
         currentBuilding=i;
+    }
+
+    public void addQuest(int t){
+        if (t == 1) {
+            int i=(int)(Math.random()*3+5);
+            getQuestList().add(new DeliverPapers(this,i));
+            System.out.println("assigned deliver papers to building#"+i);
+        } else if (t == 2) {
+            int i=(int)(Math.random()*4+5);
+            int o=(int)(Math.random()*9+1);
+            getQuestList().add(new OrderFood(this,i,o));
+            System.out.println("assigned deliver order#"+o+" to building#"+i);
+        } else if (t == 3) {
+            int i=(int)(Math.random()*4+5);
+            int q=(int)(Math.random()*25+5);
+            getQuestList().add(new PrintPapers(this,i,q));
+            System.out.println("assigned deliver "+q+" papers to building#"+i);
+        } else if(t==4){
+            getQuestList().add(new SendEmail(this,0));
+            System.out.println("assigned send email#"+0);
+        } else if(t==5){
+            int p=(int)(Math.random()*11+10);
+            getQuestList().add(new PictureCats(this,p));
+            System.out.println("assigned picture cats "+p+" times and then send email");
+        }
     }
 
 }

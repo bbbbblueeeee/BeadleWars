@@ -21,7 +21,7 @@ public class GameFrame extends JFrame implements MouseListener {
     private int width,height,playerID,currentHour,currentMinute;
     private Container contentPane;
     private Player me,other;
-    private Timer animationTimer,clockTimer;
+    private Timer animationTimer,clockTimer,questManagerTimer,positionCheckingTimer;
     private boolean up,down,left,right;
     private Image minigame;
     private Socket socket;
@@ -185,6 +185,78 @@ public class GameFrame extends JFrame implements MouseListener {
         return minigame;
     }
 
+    private void setUpPositionCheckingTimer(){
+        positionCheckingTimer=new Timer(25,new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+
+                if (me.getCurrentBuilding() == 0) {
+                    if (new Rectangle(166, 50, 145, 101).contains(me.getX(), me.getY())) {
+                        me.setDirection(2);
+                        me.setX(191);
+                        me.setY(175);
+                        System.out.println("position mistake 1");
+                    } else if (new Rectangle(544, 233, 68, 65).contains(me.getX(), me.getY())||new Rectangle(564,373,28,28).contains(me.getX(),me.getY())) {
+                        me.setDirection(3);
+                        me.setX(501);
+                        me.setY(316);
+                        System.out.println("position mistake 2");
+                    } else if (new Rectangle(254, 285, 116, 150).contains(136, 150)) {
+                        me.setDirection(4);
+                        me.setX(409);
+                        me.setY(367);
+                        System.out.println("position mistake 3");
+                    } else if (new Rectangle(199, 633, 210, 83).contains(me.getX(), me.getY())) {
+                        me.setDirection(1);
+                        me.setX(443);
+                        me.setY(625);
+                        System.out.println("position mistake 4");
+                    } else if (new Rectangle(794, 42, 178, 143).contains(me.getX(), me.getY())) {
+                        me.setDirection(3);
+                        me.setX(742);
+                        me.setY(107);
+                        System.out.println("position mistake 5");
+                    } else if (new Rectangle(794, 216, 178, 97).contains(me.getX(), me.getY())) {
+                        me.setDirection(3);
+                        me.setX(749);
+                        me.setY(249);
+                        System.out.println("position mistake 6");
+                    } else if (new Rectangle(811, 387, 161, 107).contains(me.getX(), me.getY())) {
+                        me.setDirection(3);
+                        me.setX(766);
+                        me.setY(407);
+                        System.out.println("position mistake 7");
+                    } else if (new Rectangle(694, 544, 117, 110).contains(me.getX(), me.getY())) {
+                        me.setDirection(3);
+                        me.setX(701);
+                        me.setY(668);
+                        System.out.println("position mistake 8");
+                    }
+                }
+            }
+        });
+
+        positionCheckingTimer.setInitialDelay(25);
+        positionCheckingTimer.start();
+    }
+
+    private void setUpQuestManagerTimer(){
+        questManagerTimer=new Timer(48000,new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae){
+                if(me.getQuestList().get(2)==null) {
+                    int random = (int) (Math.random() * 5) + 1;
+                    while (me.findQuestType(random) != null)
+                        random = (int) (Math.random() * 5) + 1;
+                    me.addQuest(random);
+                }
+            }
+        });
+
+        questManagerTimer.setInitialDelay(48000);
+        questManagerTimer.start();
+    }
+
     private void setUpTimer2() {
         // + 10 minutes every 2 seconds!!
         clockTimer = new Timer(4000, new ActionListener() {
@@ -280,7 +352,7 @@ public class GameFrame extends JFrame implements MouseListener {
                     }
                     Quest q=null;
                     for(Quest quest : me.getQuestList()){
-                        if(quest.isCompleted()) {
+                        if(quest!=null&&quest.isCompleted()) {
                             q = quest;
                             break;
                         }
@@ -293,30 +365,6 @@ public class GameFrame extends JFrame implements MouseListener {
                 if(keyCode>47&&keyCode<58&&minigame!=null&&me.getCurrentBuilding()==2&&me.findQuestType(3)!=null){
                     ((PrintPapers) me.findQuestType(3)).editQuantity(Integer.toString(keyCode-48));
                     System.out.println("quantity is now "+((PrintPapers) me.findQuestType(3)).getQuantity());
-                }
-
-                // just testing quest assignment, will delete
-                else if (keyCode == KeyEvent.VK_1) {
-                    int t=(int)(Math.random()*3+5);
-                    me.getQuestList().add(new DeliverPapers(me,t));
-                    System.out.println("assigned deliver papers to building#"+t);
-                } else if (keyCode == KeyEvent.VK_2) {
-                    int t=(int)(Math.random()*4+5);
-                    int o=(int)(Math.random()*9+1);
-                    me.getQuestList().add(new OrderFood(me,t,o));
-                    System.out.println("assigned deliver order#"+o+" to building#"+t);
-                } else if (keyCode == KeyEvent.VK_3) {
-                    int t=(int)(Math.random()*4+5);
-                    int q=(int)(Math.random()*25+5);
-                    me.getQuestList().add(new PrintPapers(me,t,q));
-                    System.out.println("assigned deliver "+q+" papers to building#"+t);
-                } else if(keyCode==KeyEvent.VK_4){
-                    me.getQuestList().add(new SendEmail(me,0));
-                    System.out.println("assigned send email#"+0);
-                } else if(keyCode==KeyEvent.VK_5){
-                    int p=(int)(Math.random()*11+10);
-                    me.getQuestList().add(new PictureCats(me,p));
-                    System.out.println("assigned picture cats "+p+" times and then send email");
                 }
 
                 //if the player is in NBL and the minigame is active
@@ -423,7 +471,7 @@ public class GameFrame extends JFrame implements MouseListener {
                                     minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
                                 //if there is an active minigame: make the minigame inactive
                                 else {
-                                    if (me.getCurrentBuilding() == 2 && me.findQuestType(3) != null && !(((PrintPapers) me.findQuestType(3)).getQuantity().equals(""))) {
+                                    if (me.getCurrentBuilding() == 2 && me.findQuestType(3) != null && !(((PrintPapers) me.findQuestType(3)).getQuantity().equals(""))&&me.getItemNum()==0) {
                                         ((DeliverQuest) me.findQuestType(3)).takeItem(0);
                                         System.out.println("took papers");
                                     }
@@ -452,7 +500,7 @@ public class GameFrame extends JFrame implements MouseListener {
 
                 //if the I key is pressed and the player is on the leftmost side of the interior
                 if(keyCode==KeyEvent.VK_I&&me.getInsideMapX()==0&&me.getInsideX()<230){
-                    //if the player is not holding any items, is in NBL, has an active DeliverPapers quest, and has not received papers for said quest: take papers
+                    //if the player is not holding any items, is in prof's building, has an active DeliverPapers quest, and has not received papers for said quest: take papers
                     if (me.getItemNum() == 0&&me.getCurrentBuilding()==8&&me.findQuestType(1)!=null&&me.findQuestType(1).getStatus()==0) {
                         ((DeliverPapers) me.findQuestType(1)).takeItem(0);
                         System.out.println("took papers");
@@ -545,6 +593,7 @@ public class GameFrame extends JFrame implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        System.out.println(me.getCurrentBuilding());
         //if the cursor is in the lower right portion of the menu: leave the current stall
         if(menuOptions[3].contains((int)MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX(),(int)MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY()))
             me.setCurrentStall(0);
@@ -552,7 +601,7 @@ public class GameFrame extends JFrame implements MouseListener {
         for(int i=0;i<3;i++) {
             if (menuOptions[i].contains((int) MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX(), (int) MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY())) {
                 //if the player is in a stall, there is an active OrderFood quest, and that quest is in the phase where the player has not yet taken an order: take the corresponding order and leave the stall
-                if (me.getCurrentStall() != 0&&me.findQuestType(2)!=null&&me.findQuestType(2).getStatus()==0) {
+                if (me.getCurrentStall() != 0&&me.findQuestType(2)!=null&&me.findQuestType(2).getStatus()==0&&me.getItemNum()==0) {
                     ((OrderFood) me.findQuestType(2)).takeItem(me.getCurrentStall() * 3 - (2-i));
                     System.out.println("took food order#" + (me.getCurrentStall() * 3 - (2-i)));
                     me.setCurrentStall(0);
@@ -635,7 +684,10 @@ public class GameFrame extends JFrame implements MouseListener {
                         if (me.getStartPressed()==true && other.getStartPressed()==true && showTitleScreen==true) {
                             System.out.println("Game starting!!!");
                             showTitleScreen = false;
+                            me.initializeQuests();
                             setUpTimer2();
+                            setUpQuestManagerTimer();
+                            setUpPositionCheckingTimer();
                             clip.start();
                             repaint();
                     }
