@@ -18,25 +18,22 @@ import java.util.TimerTask;
 
 public class GameFrame extends JFrame implements MouseListener {
 
-    private int width,height,playerID,otherBuilding;
+    private int width,height,playerID,currentHour,currentMinute;
     private Container contentPane;
     private Player me,other;
     private Timer animationTimer,clockTimer;
     private boolean up,down,left,right;
-    private Image mySprite,otherSprite,map,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,minigame,menu,itemOnMap;
-    private DrawingComponent drawingComponent;
+    private Image minigame;
     private Socket socket;
     private ReadFromServer rfsRunnable;
     private WriteToServer wtsRunnable;
-    private Rectangle[] paths,entryPoints,menuOptions;
+    private Rectangle[] paths,entryPoints,menuOptions, charaSelect;
     private Quest current;
-    private Font customFont;
-    private String stall;
+    private GameCanvas gameCanvas;
 
-    private int currentHour = 7;
-    private int currentMinute = 50;
     private boolean showEndScreen = false;
-    private Image endScreen = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/endscreen.png"));
+    private boolean showTitleScreen = true;
+
     private File file;
     private AudioInputStream audioStream;
     private Clip clip;
@@ -48,21 +45,14 @@ public class GameFrame extends JFrame implements MouseListener {
         down=false;
         left=false;
         right=false;
+        currentHour=7;
+        currentMinute=50;
         paths=new Rectangle[14];
         entryPoints=new Rectangle[13];
         menuOptions=new Rectangle[4];
+        charaSelect=new Rectangle[9];
         this.addMouseListener(this);
-        try{
-            InputStream inputStream = getClass().getResourceAsStream("/assets/DisposableDroidBB.ttf");
-            customFont=Font.createFont(Font.TRUETYPE_FONT,inputStream);
-        }
-        catch(Exception e){
-            System.out.println("haha your font wont import");
-        }
 
-        map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
-        invPaper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_paper.png"));
-        invFood = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_food.png"));
         minigame=null;
         file = new File("Ooblets!.wav");
         audioStream = AudioSystem.getAudioInputStream(file);
@@ -76,8 +66,10 @@ public class GameFrame extends JFrame implements MouseListener {
         this.setTitle("Player #"+playerID);
         contentPane.setPreferredSize(new Dimension(width,height));
         createPlayer();
-        drawingComponent=new DrawingComponent();
-        contentPane.add(drawingComponent);
+        gameCanvas=new GameCanvas(me,other,playerID,this);
+        contentPane.add(gameCanvas);
+        //drawingComponent=new DrawingComponent();
+        //contentPane.add(drawingComponent);
         //initialize path coordinates
         paths[0]=new Rectangle(186,172,41,395);
         paths[1]=new Rectangle(186,185,295,43);
@@ -107,6 +99,17 @@ public class GameFrame extends JFrame implements MouseListener {
         menuOptions[1]=new Rectangle(762,138,241,294);
         menuOptions[2]=new Rectangle(512,438,245,304);
         menuOptions[3]=new Rectangle(762,438,241,304);
+        // character select
+        charaSelect[0]=new Rectangle(580,160,200,150);
+        charaSelect[1]=new Rectangle(780,160,200,150);
+        charaSelect[2]=new Rectangle(580,310,200,150);
+        charaSelect[3]=new Rectangle(780,310,200,150);
+        charaSelect[4]=new Rectangle(580,460,200,150);
+        charaSelect[5]=new Rectangle(780,460,200,150);
+        charaSelect[6]=new Rectangle(580,610,200,150);
+        charaSelect[7]=new Rectangle(780,610,200,150);
+        //start button
+       charaSelect[8]=new Rectangle(100,640,370,90);
         //make code that assigns sprites depending on what the player and opponent chose. something with arrays
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -114,8 +117,6 @@ public class GameFrame extends JFrame implements MouseListener {
         this.setUpKeyListener();
         this.setVisible(true);
         this.setUpTimer();
-
-
     }
 
     private void connectToServer(){
@@ -137,162 +138,6 @@ public class GameFrame extends JFrame implements MouseListener {
         }
     }
 
-    private class DrawingComponent extends JComponent{
-        protected void paintComponent(Graphics graphics){
-            Graphics2D g2d=(Graphics2D) graphics;
-            //if the player is not in a building: draw map and overworld sprites
-            if(me.getCurrentBuilding()==0) {
-                g2d.drawImage(map, 0, 0, null);
-                mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.getDirection() + ".png"));
-                otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
-                g2d.drawImage(mySprite, me.getX(), me.getY(), null);
-                g2d.drawImage(otherSprite, other.getX(), other.getY(), null);
-                repaint();
-            }
-            //if the player is in a building
-            else {
-                //if the player isn't in a Gomz stall: draws the interior background and the player's indoor sprite
-                if (me.getCurrentStall() == 0) {
-                    insideMap = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/interior_" + me.getCurrentBuilding() + ".png"));
-                    g2d.drawImage(insideMap, me.getInsideMapX(), 0, null);
-                    //if the player is in the profs' building, they have an active DeliverPapers quest, and haven't received the papers for it yet: draw papers in the building
-                    if (me.getCurrentBuilding() == 8&&me.findQuestType(1)!=null&&((DeliverPapers) me.findQuestType(1)).getStatus() == 0) {
-                        g2d.drawImage(invPaper, me.getInsideMapX() + 34, 500, null);
-                        System.out.println("drawing papers");
-                    }
-                    //if the player is holding an item
-                    if (me.getItemNum() != 0) {
-                        //look through the player's quest list for DeliverPapers, OrderFood, and PrintPapers quests
-                        for(int i=1;i<=3;i++){
-                            //if the target building of an existing quest is the same as the player's current building and the quest is in the phase where the item has been taken: set that quest as current and break out of the loop
-                            if(me.findQuestType(i)!=null&&me.findQuestType(i).getStatus()==1&&me.findQuestType(i).getTargetBuildingNum()==me.getCurrentBuilding()) {
-                                current = me.findQuestType(i);
-                                System.out.println("current quest assigned to quest type "+i);
-                                break;
-                            }
-                        }
-                    }
-                    //if the current quest's target building is the same as the building the player is in
-                    if (current != null) {
-                        //if the current quest is in the phase where the player has placed the item in the designated building: draw the corresponding item
-                        if(current.getStatus()==2) {
-                            if (current.getQuestType() == 2)
-                                itemOnMap = invFood;
-                            else
-                                itemOnMap=invPaper;
-                            g2d.drawImage(itemOnMap, me.getInsideMapX() + 34, 500, null);
-                            System.out.println("drawing itemOnMap");
-                        }
-                    }
-                    //if the player and their opponent are in the same building: draw the opponent's indoor sprite
-                    if (otherBuilding == me.getCurrentBuilding()) {
-                        int myAbsInsideX=me.getInsideX()-me.getInsideMapX();
-                        int otherAbsInsideX=other.getInsideX()-other.getInsideMapX();
-                        otherInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + other.getColorNum() + "_" + other.getDirection() + "_1.png"));
-                        g2d.drawImage(otherInsideSprite, me.getInsideX()-myAbsInsideX+otherAbsInsideX, 411, null);
-                    }
-                    myInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + me.getColorNum() + "_" + me.getDirection() + "_1.png"));
-                    g2d.drawImage(myInsideSprite, me.getInsideX(), 411, null);
-                    repaint();
-                }
-                //if the player is in a Gomz stall: draws the corresponding menu and the text
-                else{
-                    menu=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/menu_" + me.getCurrentStall() + ".png"));
-                    g2d.drawImage(menu,0,0,null);
-                    g2d.setFont(customFont);
-                    g2d.setFont(g2d.getFont().deriveFont(35f));
-                    stall="hi, welcome to \nchili's";
-                    int i=0;
-                    for (String line:stall.split("\n")) {
-                        g2d.drawString(line, 267, 158+i);
-                        i+=35;
-                    }
-                }
-
-                //draws the player's inventory depending on which item they have
-                if (me.getItemNum() == 1)
-                    g2d.drawImage(invPaper, 35, 629, null);
-                else if (me.getItemNum() == 2)
-                    g2d.drawImage(invFood, 35, 629, null);
-            }
-
-            //if there is an active minigame: draw the minigame image
-            if (minigame != null) {
-                g2d.drawImage(minigame, 0, 0, null);
-                //if the player is in D-Shop and they have an active PrintPapers quest: draw the printer text
-                if(me.getCurrentBuilding()==2&&me.findQuestType(3)!=null){
-                    g2d.setFont(customFont);
-                    g2d.setFont(g2d.getFont().deriveFont(75f));
-                    g2d.drawString("Number of Copies:", 38,330);
-                    g2d.setFont(g2d.getFont().deriveFont(100f));
-                    g2d.drawString(((PrintPapers) me.findQuestType(3)).getQuantity(), 38,430);
-                }
-                //if the player is in Pawra and they have an active PictureCats quest: draw the number of photo's they've taken
-                else if(me.getCurrentBuilding()==3&&me.findQuestType(5)!=null){
-                    g2d.setFont(customFont);
-                    g2d.setFont(g2d.getFont().deriveFont(100f));
-                    g2d.drawString(((PictureCats) me.findQuestType(5)).getTakenPics()+"!", 900,100);
-                }
-                //if the player is in NBL
-                if(me.getCurrentBuilding()==1){
-                    //if the player has an active SendEmails quest: set text font
-                    if(me.findQuestType(4)!=null&&me.findQuestType(4).getStatus()!=2) {
-                        g2d.setFont(customFont);
-                        g2d.setFont(g2d.getFont().deriveFont(20f));
-                        //if the player has sent the email: draw sent text
-                        if (me.findQuestType(4).getStatus()==1)
-                            g2d.drawString("Your email has been sent!", 346, 254);
-                            //if the player has not sent the email: draw email text
-                        else {
-                            int i = 0;
-                            for (String line : ((SendEmail) me.findQuestType(4)).getEmailArray()[((SendEmail) me.findQuestType(4)).getKeyCount()].split("\n")) {
-                                g2d.drawString(line, 346, 254 + i);
-                                i += 25;
-                            }
-                        }
-                    }
-                    //if the player has an active PictureCats quest: set text font
-                    else if(me.findQuestType(5)!=null&&me.findQuestType(5).getStatus()!=2){
-                        g2d.setFont(customFont);
-                        g2d.setFont(g2d.getFont().deriveFont(20f));
-                        // if the player has sent the email: draw sent text
-                        if (me.findQuestType(5).getStatus()==1)
-                            g2d.drawString("Your email has been sent!", 346, 254);
-                        //if the player sent the email with the wrong number of photos: draw retry text
-                        else if(((PictureCats) me.findQuestType(5)).wasJustSent()) {
-                            int i = 0;
-                            for (String line : "Professor:\nDid you not see the number of photographs I asked for? \nDo it again, and do it properly this time.".split("\n")) {
-                                g2d.drawString(line, 346, 254 + i);
-                                i += 25;
-                            }
-                        }
-                        //if the player hasn't sent the email: draw email text
-                        else {
-                            int i = 0;
-                            for (String line : ((PictureCats) me.findQuestType(5)).getEmailArray()[((PictureCats) me.findQuestType(5)).getKeyCount()].split("\n")) {
-                                g2d.drawString(line, 346, 254 + i);
-                                i += 25;
-                            }
-                        }
-                    }
-                }
-            }
-
-            g2d.setColor(Color.white);
-            g2d.setFont(customFont);
-            g2d.setFont(g2d.getFont().deriveFont(35f));
-            String clockTime = String.format("Time : %02d:%02d", currentHour, currentMinute);
-            g2d.drawString(clockTime, 840, 25);
-
-            // If game time is over, show end screen
-            if (showEndScreen) {
-                g2d.drawImage(endScreen, 0, 0, null);
-                g2d.drawImage(mySprite, 500, 150, null);
-                g2d.drawImage(otherSprite, 550, 150, null);
-            }
-        }
-    }
-
     private void createPlayer(){
         if (playerID ==1){
             me=new Player(445,108,7,2);
@@ -311,12 +156,33 @@ public class GameFrame extends JFrame implements MouseListener {
         }
         return false;
     }
-
+    //player collision
     public boolean isColliding(Player other) {
         return !(me.getX() + 28 <= other.getX() ||
                 me.getX() >= other.getX() + 28 ||
                 me.getY() + 28 <= other.getY() ||
                 me.getY() >= other.getY() + 28);
+    }
+
+    public int getGameState(){
+        if(showTitleScreen)
+            return 1;
+        else if(!showEndScreen)
+            return 2;
+        else
+            return 3;
+    }
+
+    public int getCurrentHour(){
+        return currentHour;
+    }
+
+    public int getCurrentMinute(){
+        return currentMinute;
+    }
+
+    public Image getMinigame(){
+        return minigame;
     }
 
     private void setUpTimer2() {
@@ -335,7 +201,7 @@ public class GameFrame extends JFrame implements MouseListener {
                     showEndScreen = true;
                 }
 
-                repaint(); // Update screen with new time
+                repaint();
             }
         });
 
@@ -387,7 +253,7 @@ public class GameFrame extends JFrame implements MouseListener {
                         me.moveH(speed+3);
                 }
 
-                drawingComponent.repaint();
+                gameCanvas.repaint();
             }
         };
         animationTimer=new Timer(interval,actionListener);
@@ -421,13 +287,10 @@ public class GameFrame extends JFrame implements MouseListener {
                     }
                     if(q!=null)
                         q.finish(me);
-
-                    if(me.findQuestType(4)==null&&me.findQuestType(5)==null&&minigame!=null)
-                        minigame=null;
                 }
 
-                //if the key typed is a number and the minigame in D-Shop is active: add the typed number (as a String) to the PrintPapers quest's quantity value
-                if(keyCode>47&&keyCode<58&&minigame!=null&&me.getCurrentBuilding()==2){
+                //if the key typed is a number, there is an active PrintPapers quest, and the minigame in D-Shop is active: add the typed number (as a String) to the PrintPapers quest's quantity value
+                if(keyCode>47&&keyCode<58&&minigame!=null&&me.getCurrentBuilding()==2&&me.findQuestType(3)!=null){
                     ((PrintPapers) me.findQuestType(3)).editQuantity(Integer.toString(keyCode-48));
                     System.out.println("quantity is now "+((PrintPapers) me.findQuestType(3)).getQuantity());
                 }
@@ -481,6 +344,7 @@ public class GameFrame extends JFrame implements MouseListener {
                     else if(me.findQuestType(4)!=null&&me.findQuestType(4).getStatus()==1&&keyCode == KeyEvent.VK_ENTER) {
                         ((SendEmail)me.findQuestType(4)).complete();
                         minigame = null;
+                        System.out.println("made minigame null");
                     }
                     //if there is an uncompleted PictureCats quest
                     else if(me.findQuestType(5)!=null&&me.findQuestType(5).getStatus()==0&&me.findQuestType(4)==null){
@@ -489,6 +353,7 @@ public class GameFrame extends JFrame implements MouseListener {
                             if (keyCode == KeyEvent.VK_ENTER) {
                                 ((PictureCats) me.findQuestType(5)).resetJustSent();
                                 minigame=null;
+                                System.out.println("made minigame null");
                             }
                         }
                         //if the email has not been fully typed
@@ -506,7 +371,6 @@ public class GameFrame extends JFrame implements MouseListener {
                                 //if the player took the wrong number of photos: reset the quest
                                 if(!((PictureCats) me.findQuestType(5)).hasCorrectPhotos()) {
                                     ((PictureCats) me.findQuestType(5)).resetQuest();
-                                    System.out.println("wrong photos, try again!");
                                 }
                                 //if the player took the correct number of photos: send the email
                                 else {
@@ -520,7 +384,10 @@ public class GameFrame extends JFrame implements MouseListener {
                     else if(me.findQuestType(5)!=null&&keyCode == KeyEvent.VK_ENTER&&me.findQuestType(5).getStatus()==1) {
                         ((PictureCats)me.findQuestType(5)).complete();
                         minigame = null;
+                        System.out.println("made minigame null");
                     }
+                    else if(me.findQuestType(4)==null&&me.findQuestType(5)==null&&keyCode==KeyEvent.VK_ENTER)
+                        minigame=null;
                 }
                 //if the Enter key is pressed:
                 else if (keyCode == KeyEvent.VK_ENTER) {
@@ -561,6 +428,7 @@ public class GameFrame extends JFrame implements MouseListener {
                                         System.out.println("took papers");
                                     }
                                     minigame = null;
+                                    System.out.println("made minigame null");
                                 }
                             }
                             //if the player is on the leftmost side of the interior
@@ -572,8 +440,10 @@ public class GameFrame extends JFrame implements MouseListener {
                                 else if (me.getCurrentBuilding() == 1) {
                                     if (minigame == null)
                                         minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
-                                    else
+                                    else {
                                         minigame = null;
+                                        System.out.println("made minigame null");
+                                    }
                                 }
                             }
                         }
@@ -690,6 +560,28 @@ public class GameFrame extends JFrame implements MouseListener {
                 break;
             }
         }
+        // if cursor is on start button
+        if(charaSelect[8].contains((int)MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX(),(int)MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY()))
+        {
+            if (showTitleScreen == true) {
+                if (me.getStartPressed()==false) {
+                    me.setStartPressed(true);
+                    System.out.println("Waiting for other player to start...");
+
+                }
+            }
+        }
+        //if the cursor is in color change buttons
+        for(int i=0;i<8;i++) {
+            if (charaSelect[i].contains((int) MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX(), (int) MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY())) {
+                if (showTitleScreen) {
+                    int colorNum = i + 1;
+                    me.setColorNum(colorNum);
+                    System.out.println("switched to "+colorNum);
+                }
+                break;
+            }
+        }
     }
 
     @Override
@@ -725,15 +617,28 @@ public class GameFrame extends JFrame implements MouseListener {
                     int otherX=dataIn.readInt();
                     int otherY=dataIn.readInt();
                     int otherDirection=dataIn.readInt();
-                    otherBuilding=dataIn.readInt();
+                    int otherBuilding=dataIn.readInt();
                     int otherInsideX=dataIn.readInt();
                     int otherInsideMapX=dataIn.readInt();
+                    int otherColorNum = dataIn.readInt();
+                    boolean otherStartPressed = dataIn.readBoolean();
                     if(other!=null){
                         other.setX(otherX);
                         other.setY(otherY);
-                        other.setDirection(otherDirection);
+                        if(me.getCurrentBuilding()==0&&other.getCurrentBuilding()==0)
+                            other.setDirection(otherDirection);
+                        other.setCurrentBuilding(otherBuilding);
                         other.setInsideX(otherInsideX);
                         other.setInsideMapX(otherInsideMapX);
+                        other.setColorNum(otherColorNum);
+                        other.setStartPressed(otherStartPressed);
+                        if (me.getStartPressed()==true && other.getStartPressed()==true && showTitleScreen==true) {
+                            System.out.println("Game starting!!!");
+                            showTitleScreen = false;
+                            setUpTimer2();
+                            clip.start();
+                            repaint();
+                    }
                     }
                 }
 
@@ -753,11 +658,12 @@ public class GameFrame extends JFrame implements MouseListener {
                 readThread.start();
                 writeThread.start();
                 clip.start();
-                GameFrame.this.setUpTimer2();
+
             }catch(IOException ex){
                 System.out.println("IOExceptoin from waitForStartMsg");
             }
         }
+
     }
 
     private class WriteToServer implements Runnable{
@@ -778,6 +684,8 @@ public class GameFrame extends JFrame implements MouseListener {
                         dataOut.writeInt(me.getCurrentBuilding());
                         dataOut.writeInt(me.getInsideX());
                         dataOut.writeInt(me.getInsideMapX());
+                        dataOut.writeInt(me.getColorNum());
+                        dataOut.writeBoolean(me.getStartPressed());
                         dataOut.flush();
                     }
                     try{
@@ -793,6 +701,7 @@ public class GameFrame extends JFrame implements MouseListener {
         }
 
     }
+
 
     public static void main(String[] args) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         GameFrame gameFrame=new GameFrame(1024,768);

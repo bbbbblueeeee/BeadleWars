@@ -3,6 +3,7 @@ import java.util.ArrayList;
 public class Player {
 
     private int x,y,prevX,prevY,colorNum,direction,currentBuilding,currentStall,activeEvent,insideX,insideMapX,itemNum,points;
+    private boolean startPressed;
     private ArrayList <Quest> quests;
 
     public Player(int a,int b,int c,int d){
@@ -14,6 +15,7 @@ public class Player {
         currentBuilding = 0;
         currentStall=0;
         points=0;
+        startPressed = false;
         quests=new ArrayList<>();
         if(d==1)
             direction=1;
@@ -303,6 +305,31 @@ public class Player {
                 return q;
         }
         return null;
+    }
+    public void setStartPressed(boolean b) {
+        startPressed = b;
+    }
+
+    public boolean getStartPressed() {
+        return startPressed;
+    }
+
+    public Quest getCurrentQuest(){
+        //if the player is holding an item
+        if (getItemNum() != 0) {
+            //look through the player's quest list for DeliverPapers, OrderFood, and PrintPapers quests
+            for (int i = 1; i <= 3; i++) {
+                //if the target building of an existing quest is the same as the player's current building and the quest is in the phase where the item has been taken: set that quest as current and break out of the loop
+                if (findQuestType(i) != null && findQuestType(i).getStatus() == 1 && findQuestType(i).getTargetBuildingNum() == getCurrentBuilding()) {
+                    return findQuestType(i);
+                }
+            }
+        }
+        return null;
+    }
+
+    public void setCurrentBuilding(int i){
+        currentBuilding=i;
     }
 
 }
