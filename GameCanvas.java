@@ -132,10 +132,10 @@ public class GameCanvas extends JComponent{
                             System.out.println("drawing papers");
                         }
                         //if the current quest's target building is the same as the building the player is in
-                        if (me.getCurrentQuest() != null) {
+                        if (me.getCompletedQuest() != null) {
                             //if the current quest is in the phase where the player has placed the item in the designated building: draw the corresponding item
-                            if (me.getCurrentQuest().getStatus() == 2) {
-                                if (me.getCurrentQuest().getQuestType() == 2)
+                            if (me.getCompletedQuest().getStatus() == 2) {
+                                if (me.getCompletedQuest().getQuestType() == 2)
                                     itemOnMap = invFood;
                                 else
                                     itemOnMap = invPaper;

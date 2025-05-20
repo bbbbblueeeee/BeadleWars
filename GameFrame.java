@@ -187,7 +187,7 @@ public class GameFrame extends JFrame implements MouseListener {
 
     private void setUpTimer2() {
         // + 10 minutes every 2 seconds!!
-        clockTimer = new Timer(2000, new ActionListener() {
+        clockTimer = new Timer(4000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 currentMinute += 10;
