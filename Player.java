@@ -3,6 +3,7 @@ import java.util.ArrayList;
 public class Player {
 
     private int x,y,prevX,prevY,colorNum,direction,currentBuilding,currentStall,activeEvent,insideX,insideMapX,itemNum,points;
+    private boolean startPressed;
     private ArrayList <Quest> quests;
 
     public Player(int a,int b,int c,int d){
@@ -14,6 +15,7 @@ public class Player {
         currentBuilding = 0;
         currentStall=0;
         points=0;
+        startPressed = false;
         quests=new ArrayList<>();
         if(d==1)
             direction=1;
@@ -295,6 +297,13 @@ public class Player {
                 return q;
         }
         return null;
+    }
+    public void setStartPressed(boolean b) {
+        startPressed = b;
+    }
+
+    public boolean getStartPressed() {
+        return startPressed;
     }
 
 }

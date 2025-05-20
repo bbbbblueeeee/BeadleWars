@@ -155,10 +155,15 @@ public class GameFrame extends JFrame implements MouseListener {
     private class DrawingComponent extends JComponent{
         protected void paintComponent(Graphics graphics){
             Graphics2D g2d=(Graphics2D) graphics;
-            //if the player is not in a building: draw map and overworld sprites
+            //show title screen first
             if(showTitleScreen == true)
-            {
-                g2d.drawImage(titleScreen, 0, 0, null);
+            {   g2d.drawImage(titleScreen, 0, 0, null);
+                if (me.getStartPressed()==true) {
+                    g2d.setFont(customFont);
+                    g2d.setColor(Color.black);
+                    g2d.setFont(g2d.getFont().deriveFont(25f));
+                    g2d.drawString("Waiting for other player to start...", 100,500);
+                }
                 if (playerID ==1){
                     otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
                     g2d.drawImage(mySprite, 150, 400, null);
@@ -690,10 +695,11 @@ public class GameFrame extends JFrame implements MouseListener {
         if(charaSelect[8].contains((int)MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX(),(int)MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY()))
         {
             if (showTitleScreen == true) {
-                System.out.println("start!");
-                showTitleScreen = false;
-                repaint();
-                this.setUpTimer2();
+                if (me.getStartPressed()==false) {
+                    me.setStartPressed(true);
+                    System.out.println("Waiting for other player to start...");
+
+                }
             }
         }
         //if the cursor is in color change buttons
@@ -748,6 +754,7 @@ public class GameFrame extends JFrame implements MouseListener {
                     int otherInsideX=dataIn.readInt();
                     int otherInsideMapX=dataIn.readInt();
                     int otherColorNum = dataIn.readInt();
+                    boolean otherStartPressed = dataIn.readBoolean();
                     if(other!=null){
                         other.setX(otherX);
                         other.setY(otherY);
@@ -755,6 +762,15 @@ public class GameFrame extends JFrame implements MouseListener {
                         other.setInsideX(otherInsideX);
                         other.setInsideMapX(otherInsideMapX);
                         other.setColorNum(otherColorNum);
+                        other.setStartPressed(otherStartPressed);
+                        if (me.getStartPressed()==true && other.getStartPressed()==true && showTitleScreen==true) {
+                            System.out.println("Game starting!!!");
+                            showTitleScreen = false;
+                            setUpTimer2();
+                            clip.start();
+                            repaint();
+
+                    }
                     }
                 }
 
@@ -801,6 +817,7 @@ public class GameFrame extends JFrame implements MouseListener {
                         dataOut.writeInt(me.getInsideX());
                         dataOut.writeInt(me.getInsideMapX());
                         dataOut.writeInt(me.getColorNum());
+                        dataOut.writeBoolean(me.getStartPressed());
                         dataOut.flush();
                     }
                     try{
