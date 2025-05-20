@@ -28,7 +28,7 @@ public class GameFrame extends JFrame implements MouseListener {
     private Socket socket;
     private ReadFromServer rfsRunnable;
     private WriteToServer wtsRunnable;
-    private Rectangle[] paths,entryPoints,menuOptions;
+    private Rectangle[] paths,entryPoints,menuOptions, charaSelect;
     private Quest current;
     private Font customFont;
     private String stall;
@@ -37,6 +37,9 @@ public class GameFrame extends JFrame implements MouseListener {
     private int currentMinute = 50;
     private boolean showEndScreen = false;
     private Image endScreen = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/endscreen.png"));
+    private Image titleScreen = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/title.png"));
+    private boolean showTitleScreen = true;
+
     private File file;
     private AudioInputStream audioStream;
     private Clip clip;
@@ -51,6 +54,7 @@ public class GameFrame extends JFrame implements MouseListener {
         paths=new Rectangle[14];
         entryPoints=new Rectangle[13];
         menuOptions=new Rectangle[4];
+        charaSelect=new Rectangle[9];
         this.addMouseListener(this);
         try{
             InputStream inputStream = getClass().getResourceAsStream("/assets/DisposableDroidBB.ttf");
@@ -107,6 +111,17 @@ public class GameFrame extends JFrame implements MouseListener {
         menuOptions[1]=new Rectangle(762,138,241,294);
         menuOptions[2]=new Rectangle(512,438,245,304);
         menuOptions[3]=new Rectangle(762,438,241,304);
+        // character select
+        charaSelect[0]=new Rectangle(580,160,200,150);
+        charaSelect[1]=new Rectangle(780,160,200,150);
+        charaSelect[2]=new Rectangle(580,310,200,150);
+        charaSelect[3]=new Rectangle(780,310,200,150);
+        charaSelect[4]=new Rectangle(580,460,200,150);
+        charaSelect[5]=new Rectangle(780,460,200,150);
+        charaSelect[6]=new Rectangle(580,610,200,150);
+        charaSelect[7]=new Rectangle(780,610,200,150);
+        //start button
+       charaSelect[8]=new Rectangle(100,640,370,90);
         //make code that assigns sprites depending on what the player and opponent chose. something with arrays
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -114,6 +129,7 @@ public class GameFrame extends JFrame implements MouseListener {
         this.setUpKeyListener();
         this.setVisible(true);
         this.setUpTimer();
+
 
 
     }
@@ -140,6 +156,93 @@ public class GameFrame extends JFrame implements MouseListener {
     private class DrawingComponent extends JComponent{
         protected void paintComponent(Graphics graphics){
             Graphics2D g2d=(Graphics2D) graphics;
+            //show title screen first
+            if(showTitleScreen == true)
+            {   g2d.drawImage(titleScreen, 0, 0, null);
+                if (me.getStartPressed()==true) {
+                    g2d.setFont(customFont);
+                    g2d.setColor(Color.black);
+                    g2d.setFont(g2d.getFont().deriveFont(25f));
+                    g2d.drawString("Waiting for other player to start...", 100,500);
+                }
+                if (playerID ==1){
+                    otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
+                    g2d.drawImage(mySprite, 150, 400, null);
+                    g2d.drawImage(otherSprite, 200, 400, null);
+                }
+                else{
+                    otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
+                    g2d.drawImage(otherSprite, 150, 400, null);
+                    g2d.drawImage(mySprite, 200, 400, null);
+                }
+            }
+            else if (showTitleScreen == false)
+                {
+                    if (me.getCurrentBuilding() ==0)
+                    {
+                        g2d.drawImage(map, 0, 0, null);
+                        mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.getDirection() + ".png"));
+                        otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
+                        g2d.drawImage(mySprite, me.getX(), me.getY(), null);
+                        g2d.drawImage(otherSprite, other.getX(), other.getY(), null);
+                        repaint();
+                    }
+                    //if the player is in a building
+                    else {
+                        //if the player isn't in a Gomz stall: draws the interior background and the player's indoor sprite
+                        if (me.getCurrentStall() == 0) {
+                            insideMap = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/interior_" + me.getCurrentBuilding() + ".png"));
+                            g2d.drawImage(insideMap, me.getInsideMapX(), 0, null);
+                            //if the player is in the profs' building, they have an active DeliverPapers quest, and haven't received the papers for it yet: draw papers in the building
+                            if (me.getCurrentBuilding() == 8&&me.findQuestType(1)!=null&&((DeliverPapers) me.findQuestType(1)).getStatus() == 0) {
+                                g2d.drawImage(invPaper, me.getInsideMapX() + 34, 500, null);
+                                System.out.println("drawing papers");
+                            }
+                            //if the player is holding an item
+                            if (me.getItemNum() != 0) {
+                                //look through the player's quest list for DeliverPapers, OrderFood, and PrintPapers quests
+                                for(int i=1;i<=3;i++){
+                                    //if the target building of an existing quest is the same as the buliding the player is in: set that quest as current and break out of the loop
+                                    if(me.findQuestType(i)!=null&&me.findQuestType(i).getTargetBuildingNum()==me.getCurrentBuilding()) {
+                                        current = me.findQuestType(i);
+                                        break;
+                                    }
+                                }
+                            }
+                            //if the current quest's target building is the same as the building the player is in
+                            if (current != null&&me.getCurrentBuilding()==current.getTargetBuildingNum()) {
+                                //if the current quest is in the phase where the player has placed the item in the designated building: draw the corresponding item
+                                if(((DeliverQuest) current).getStatus()==2) {
+                                    if (current.getQuestType() == 2)
+                                        itemOnMap = invFood;
+                                    else
+                                        itemOnMap=invPaper;
+                                    g2d.drawImage(itemOnMap, me.getInsideMapX() + 34, 500, null);
+                                    System.out.println("drawing itemOnMap");
+                                }
+                            }
+                            //if the player and their opponent are in the same building: draw the opponent's indoor sprite
+                            if (other.getCurrentBuilding() == me.getCurrentBuilding()) {
+                                otherInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + other.getColorNum() + "_" + other.getDirection() + "_1.png"));
+                                g2d.drawImage(otherInsideSprite, other.getInsideX(), 411, null);
+                            }
+                            myInsideSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/playerIn_" + me.getColorNum() + "_" + me.getDirection() + "_1.png"));
+                            g2d.drawImage(myInsideSprite, me.getInsideX(), 411, null);
+                            repaint();
+                        }
+                        //if the player is in a Gomz stall: draws the corresponding menu and the text
+                        else{
+                            menu=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/menu_" + me.getCurrentStall() + ".png"));
+                            g2d.drawImage(menu,0,0,null);
+                            g2d.setFont(customFont);
+                            g2d.setFont(g2d.getFont().deriveFont(35f));
+                            stall="hi, welcome to \nchili's";
+                            int i=0;
+                            for (String line:stall.split("\n")) {
+                                g2d.drawString(line, 267, 158+i);
+                                i+=35;
+                            }
+                        }
             //if the player is not in a building: draw map and overworld sprites
             if(me.getCurrentBuilding()==0) {
                 g2d.drawImage(map, 0, 0, null);
@@ -209,12 +312,13 @@ public class GameFrame extends JFrame implements MouseListener {
                     }
                 }
 
-                //draws the player's inventory depending on which item they have
-                if (me.getItemNum() == 1)
-                    g2d.drawImage(invPaper, 35, 629, null);
-                else if (me.getItemNum() == 2)
-                    g2d.drawImage(invFood, 35, 629, null);
-            }
+
+                        //draws the player's inventory depending on which item they have
+                        if (me.getItemNum() == 1)
+                            g2d.drawImage(invPaper, 35, 629, null);
+                        else if (me.getItemNum() == 2)
+                            g2d.drawImage(invFood, 35, 629, null);
+                    }
 
             //if there is an active minigame: draw the minigame image
             if (minigame != null) {
@@ -278,18 +382,22 @@ public class GameFrame extends JFrame implements MouseListener {
                 }
             }
 
-            g2d.setColor(Color.white);
-            g2d.setFont(customFont);
-            g2d.setFont(g2d.getFont().deriveFont(35f));
-            String clockTime = String.format("Time : %02d:%02d", currentHour, currentMinute);
-            g2d.drawString(clockTime, 840, 25);
+                    //for drawing the clock
+                    g2d.setColor(Color.white);
+                    g2d.setFont(customFont);
+                    g2d.setFont(g2d.getFont().deriveFont(35f));
+                    String clockTime = String.format("Time : %02d:%02d", currentHour, currentMinute);
+                    g2d.drawString(clockTime, 840, 25);
 
-            // If game time is over, show end screen
-            if (showEndScreen) {
-                g2d.drawImage(endScreen, 0, 0, null);
-                g2d.drawImage(mySprite, 500, 150, null);
-                g2d.drawImage(otherSprite, 550, 150, null);
-            }
+
+                    // If game time is over, show end screen
+                    if (showEndScreen) {
+                        g2d.drawImage(endScreen, 0, 0, null);
+                        g2d.drawImage(mySprite, 500, 150, null);
+                        g2d.drawImage(otherSprite, 550, 150, null);
+                    }
+                }
+
         }
     }
 
@@ -311,7 +419,7 @@ public class GameFrame extends JFrame implements MouseListener {
         }
         return false;
     }
-
+    //player collision
     public boolean isColliding(Player other) {
         return !(me.getX() + 28 <= other.getX() ||
                 me.getX() >= other.getX() + 28 ||
@@ -335,7 +443,7 @@ public class GameFrame extends JFrame implements MouseListener {
                     showEndScreen = true;
                 }
 
-                repaint(); // Update screen with new time
+                repaint();
             }
         });
 
@@ -692,6 +800,30 @@ public class GameFrame extends JFrame implements MouseListener {
                 break;
             }
         }
+        // if cursor is on start button
+        if(charaSelect[8].contains((int)MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX(),(int)MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY()))
+        {
+            if (showTitleScreen == true) {
+                if (me.getStartPressed()==false) {
+                    me.setStartPressed(true);
+                    System.out.println("Waiting for other player to start...");
+
+                }
+            }
+        }
+        //if the cursor is in color change buttons
+        for(int i=0;i<8;i++) {
+            if (charaSelect[i].contains((int) MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX(), (int) MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY())) {
+                if (showTitleScreen) {
+                    int colorNum = i + 1;
+                    me.setColorNum(colorNum);
+                    System.out.println("switched to "+colorNum);
+                    mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.getDirection() + ".png"));
+                    otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
+                }
+                break;
+            }
+        }
     }
 
     @Override
@@ -730,12 +862,24 @@ public class GameFrame extends JFrame implements MouseListener {
                     otherBuilding=dataIn.readInt();
                     int otherInsideX=dataIn.readInt();
                     int otherInsideMapX=dataIn.readInt();
+                    int otherColorNum = dataIn.readInt();
+                    boolean otherStartPressed = dataIn.readBoolean();
                     if(other!=null){
                         other.setX(otherX);
                         other.setY(otherY);
                         other.setDirection(otherDirection);
                         other.setInsideX(otherInsideX);
                         other.setInsideMapX(otherInsideMapX);
+                        other.setColorNum(otherColorNum);
+                        other.setStartPressed(otherStartPressed);
+                        if (me.getStartPressed()==true && other.getStartPressed()==true && showTitleScreen==true) {
+                            System.out.println("Game starting!!!");
+                            showTitleScreen = false;
+                            setUpTimer2();
+                            clip.start();
+                            repaint();
+
+                    }
                     }
                 }
 
@@ -755,11 +899,12 @@ public class GameFrame extends JFrame implements MouseListener {
                 readThread.start();
                 writeThread.start();
                 clip.start();
-                GameFrame.this.setUpTimer2();
+
             }catch(IOException ex){
                 System.out.println("IOExceptoin from waitForStartMsg");
             }
         }
+
     }
 
     private class WriteToServer implements Runnable{
@@ -780,6 +925,8 @@ public class GameFrame extends JFrame implements MouseListener {
                         dataOut.writeInt(me.getCurrentBuilding());
                         dataOut.writeInt(me.getInsideX());
                         dataOut.writeInt(me.getInsideMapX());
+                        dataOut.writeInt(me.getColorNum());
+                        dataOut.writeBoolean(me.getStartPressed());
                         dataOut.flush();
                     }
                     try{
