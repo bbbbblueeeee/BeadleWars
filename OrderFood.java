@@ -43,4 +43,8 @@ public class OrderFood extends Quest implements DeliverQuest{
         hasFood=false;
         p.giveItem();
     }
+
+    public int getWantedOrder(){
+        return wantedOrder;
+    }
 }

@@ -54,4 +54,8 @@ public class PrintPapers extends Quest implements DeliverQuest{
         return quantity;
     }
 
+    public int getWantedQuantity(){
+        return wantedQuantity;
+    }
+
 }

@@ -3,18 +3,38 @@ import java.awt.*;
 import java.io.InputStream;
 
 public class GameCanvas extends JComponent{
-    private Image mySprite,otherSprite,map,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,minigame,menu,itemOnMap,endScreen,titleScreen,endScreen_Win,endScreen_Lose,endScreen_Draw;
+    private Image mySprite,otherSprite,map,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,menu,itemOnMap,endScreen,titleScreen,endScreen_Win,endScreen_Lose,endScreen_Draw;
     private Font customFont;
-    private String stall;
+    private String stall,string;
     private Player me,other;
     private int playerID;
     private GameFrame frame;
+    private String[] buildings,orders;
 
     public GameCanvas(Player p1,Player p2,int id,GameFrame gf){
         me=p1;
         other=p2;
         playerID=id;
         frame=gf;
+        buildings=new String[8];
+        orders=new String[9];
+        buildings[0]="NBL";
+        buildings[1]="D-Shop";
+        buildings[2]="Pawra";
+        buildings[3]="Gomburza Caf";
+        buildings[4]="SIC-A";
+        buildings[5]="SIC-B";
+        buildings[6]="SIC-C";
+        buildings[7]="Profs' Bldg";
+        orders[0]="bacsilog";
+        orders[1]="hotsilog";
+        orders[2]="footsilog";
+        orders[3]="original chicken";
+        orders[4]="spicy chicken";
+        orders[5]="snow cheese chicken";
+        orders[6]="crabby patty";
+        orders[7]="triple patty";
+        orders[8]="nothing burger";
         endScreen = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/endscreen.png"));
         titleScreen = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/title.png"));
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
@@ -67,6 +87,29 @@ public class GameCanvas extends JComponent{
                 otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
                 g2d.drawImage(mySprite, me.getX(), me.getY(), null);
                 g2d.drawImage(otherSprite, other.getX(), other.getY(), null);
+                g2d.setFont(customFont);
+                g2d.setFont(g2d.getFont().deriveFont(15f));
+                int z=0;
+                for(Quest q:me.getQuestList()) {
+                    if(q!=null) {
+                        if (q.getQuestType() == 1)
+                            string = "Deliver papers from \nProfs' Building to " + buildings[q.getTargetBuildingNum() - 1] + ".";
+                        else if (q.getQuestType() == 2)
+                            string = "Get " + orders[((OrderFood) q).getWantedOrder() - 1] + " from \nGomburza Caf and bring \nit to " + buildings[q.getTargetBuildingNum() - 1] + ".";
+                        else if (q.getQuestType() == 3)
+                            string = "Print " + ((PrintPapers) q).getWantedQuantity() + " papers in \nD-Shop and bring them \nto " + buildings[q.getTargetBuildingNum() - 1] + ".";
+                        else if (q.getQuestType() == 4)
+                            string = "Send the professor an \nemail in NBL.";
+                        else if (q.getQuestType() == 5)
+                            string = "Take " + ((PictureCats) q).getWantedPics() + " pictures of the \nPawra cats and email \nthem to the professor \nin NBL.";
+                        int i = 0;
+                        for (String line : string.split("\n")) {
+                            g2d.drawString(line, 7, 261 +z+ i);
+                            i += 20;
+                        }
+                        z+=90;
+                    }
+                }
                 repaint();
             }
             //if the player is in a building
@@ -230,7 +273,7 @@ public class GameCanvas extends JComponent{
                                 //if the player sent the email with the wrong number of photos: draw retry text
                             else if (((PictureCats) me.findQuestType(5)).wasJustSent()) {
                                 int i = 0;
-                                for (String line : "Professor:\nDid you not see the number of photographs I asked for? \nDo it again, and do it properly this time.".split("\n")) {
+                                for (String line : "Professor:\nDid you not see the number of photographs I asked for? \nDo it again, and do it PROPERLY this time.".split("\n")) {
                                     g2d.drawString(line, 346, 254 + i);
                                     i += 25;
                                 }

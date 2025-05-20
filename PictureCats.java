@@ -79,6 +79,10 @@ public class PictureCats extends Quest{
         justSent=true;
     }
 
+    public int getWantedPics(){
+        return wantedPics;
+    }
+
     public void initializeEmail1(){
         email=new String[87];
         email[0]="|";
