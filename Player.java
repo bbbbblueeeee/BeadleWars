@@ -172,6 +172,10 @@ public class Player {
         currentBuilding=0;
     }
 
+    public void setPoints(int n){
+        points=n;
+    }
+
     public void initializeQuests(){
         for(int i=0;i<3;i++) {
             int random = (int) (Math.random() * 5) + 1;

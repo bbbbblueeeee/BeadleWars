@@ -3,7 +3,7 @@ import java.awt.*;
 import java.io.InputStream;
 
 public class GameCanvas extends JComponent{
-    private Image mySprite,otherSprite,map,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,minigame,menu,itemOnMap,endScreen,titleScreen;
+    private Image mySprite,otherSprite,map,myInsideSprite,otherInsideSprite,insideMap,invPaper,invFood,minigame,menu,itemOnMap,endScreen,titleScreen,endScreen_Win,endScreen_Lose,endScreen_Draw;
     private Font customFont;
     private String stall;
     private Player me,other;
@@ -20,6 +20,9 @@ public class GameCanvas extends JComponent{
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
         invPaper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_paper.png"));
         invFood = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_food.png"));
+        endScreen_Win = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/endscreen_win.png"));
+        endScreen_Lose = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/endscreen_lose.png"));
+        endScreen_Draw = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/endscreen_draw.png"));
 
         try{
             InputStream inputStream = getClass().getResourceAsStream("/assets/DisposableDroidBB.ttf");
@@ -36,6 +39,8 @@ public class GameCanvas extends JComponent{
         if (frame.getGameState()==1) {
             g2d.drawImage(titleScreen, 0, 0, null);
             mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.getDirection() + ".png"));
+            System.out.println(other.getColorNum());
+            System.out.println(other.getDirection());
             otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
             if (me.getStartPressed()) {
                 g2d.setFont(customFont);
@@ -251,9 +256,22 @@ public class GameCanvas extends JComponent{
         }
         // If game time is over, show end screen
         else if (frame.getGameState()==3) {
-            g2d.drawImage(endScreen, 0, 0, null);
-            g2d.drawImage(mySprite, 500, 150, null);
-            g2d.drawImage(otherSprite, 550, 150, null);
+            if (me.getPoints() > other.getPoints()) {
+                g2d.drawImage(endScreen_Win, 0, 0, null);
+            } else if (me.getPoints() < other.getPoints()) {
+                g2d.drawImage(endScreen_Lose, 0, 0, null);
+            } else {
+                g2d.drawImage(endScreen_Draw, 0, 0, null);
+            }
+            g2d.drawImage(mySprite, 325, 230, null);
+            g2d.drawImage(otherSprite, 680, 230, null);
+            g2d.setFont(customFont);
+            g2d.setColor(Color.black);
+            g2d.setFont(g2d.getFont().deriveFont(35f));
+
+
+            g2d.drawString("Your Score: " + me.getPoints(), 250, 285);
+            g2d.drawString("Opponent's Score: " + other.getPoints(), 560, 285);
         }
     }
 }

@@ -671,6 +671,7 @@ public class GameFrame extends JFrame implements MouseListener {
                     int otherInsideMapX=dataIn.readInt();
                     int otherColorNum = dataIn.readInt();
                     boolean otherStartPressed = dataIn.readBoolean();
+                    int otherPoints=dataIn.readInt();
                     if(other!=null){
                         other.setX(otherX);
                         other.setY(otherY);
@@ -681,6 +682,7 @@ public class GameFrame extends JFrame implements MouseListener {
                         other.setInsideMapX(otherInsideMapX);
                         other.setColorNum(otherColorNum);
                         other.setStartPressed(otherStartPressed);
+                        other.setPoints(otherPoints);
                         if (me.getStartPressed()==true && other.getStartPressed()==true && showTitleScreen==true) {
                             System.out.println("Game starting!!!");
                             showTitleScreen = false;
@@ -738,6 +740,7 @@ public class GameFrame extends JFrame implements MouseListener {
                         dataOut.writeInt(me.getInsideMapX());
                         dataOut.writeInt(me.getColorNum());
                         dataOut.writeBoolean(me.getStartPressed());
+                        dataOut.writeInt(me.getPoints());
                         dataOut.flush();
                     }
                     try{

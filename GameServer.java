@@ -12,7 +12,7 @@ public class GameServer {
     private Socket p1Socket,p2Socket;
     private ReadFromClient p1ReadRunnable,p2ReadRunnable;
     private WriteToClient p1WriteRunnable,p2WriteRunnable;
-    private int p1x,p1y,p1d,p1b,p1ix,p1imx,p2x,p2y,p2d,p2b,p2ix,p2imx,p1color,p2color; //x and y coords for players
+    private int p1x,p1y,p1d,p1b,p1ix,p1imx,p2x,p2y,p2d,p2b,p2ix,p2imx,p1color,p2color,p1points,p2points; //x and y coords for players
     private Boolean p1start,p2start;
 
     public GameServer(){
@@ -101,6 +101,7 @@ public class GameServer {
                         p1imx=dataIn.readInt();
                         p1color = dataIn.readInt();
                         p1start = dataIn.readBoolean();
+                        p1points = dataIn.readInt();
                     }
                     else
                     {
@@ -112,6 +113,7 @@ public class GameServer {
                         p2imx=dataIn.readInt();
                         p2color = dataIn.readInt();
                         p2start = dataIn.readBoolean();
+                        p2points = dataIn.readInt();
                     }
                 }
 
@@ -144,6 +146,7 @@ public class GameServer {
                         dataOut.writeInt(p2imx);
                         dataOut.writeInt(p2color);
                         dataOut.writeBoolean(p2start);
+                        dataOut.writeInt(p2points);
                         dataOut.flush();
                     }
                     else
@@ -156,6 +159,7 @@ public class GameServer {
                         dataOut.writeInt(p1imx);
                         dataOut.writeInt(p1color);
                         dataOut.writeBoolean(p1start);
+                        dataOut.writeInt(p1points);
                         dataOut.flush();
                     }
                     try{
@@ -164,6 +168,7 @@ public class GameServer {
                         System.out.println("InterruptedException from WTC run()");
                     }
                 }
+
 
             } catch (IOException ex) {
                 System.out.println("IOEx from WTC run()");
