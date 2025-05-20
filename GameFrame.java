@@ -276,42 +276,34 @@ public class GameFrame extends JFrame implements MouseListener {
                         me.setDirection(2);
                         me.setX(191);
                         me.setY(175);
-                        System.out.println("position mistake 1");
                     } else if (new Rectangle(544, 233, 68, 65).contains(me.getX(), me.getY())||new Rectangle(564,373,28,28).contains(me.getX(),me.getY())) {
                         me.setDirection(3);
                         me.setX(501);
                         me.setY(316);
-                        System.out.println("position mistake 2");
                     } else if (new Rectangle(254, 285, 116, 150).contains(136, 150)) {
                         me.setDirection(4);
                         me.setX(409);
                         me.setY(367);
-                        System.out.println("position mistake 3");
                     } else if (new Rectangle(199, 633, 210, 83).contains(me.getX(), me.getY())) {
                         me.setDirection(1);
                         me.setX(443);
                         me.setY(625);
-                        System.out.println("position mistake 4");
                     } else if (new Rectangle(794, 42, 178, 143).contains(me.getX(), me.getY())) {
                         me.setDirection(3);
                         me.setX(742);
                         me.setY(107);
-                        System.out.println("position mistake 5");
                     } else if (new Rectangle(794, 216, 178, 97).contains(me.getX(), me.getY())) {
                         me.setDirection(3);
                         me.setX(749);
                         me.setY(249);
-                        System.out.println("position mistake 6");
                     } else if (new Rectangle(811, 387, 161, 107).contains(me.getX(), me.getY())) {
                         me.setDirection(3);
                         me.setX(766);
                         me.setY(407);
-                        System.out.println("position mistake 7");
                     } else if (new Rectangle(694, 544, 117, 110).contains(me.getX(), me.getY())) {
                         me.setDirection(3);
                         me.setX(701);
                         me.setY(668);
-                        System.out.println("position mistake 8");
                     }
                 }
             }
@@ -468,7 +460,6 @@ public class GameFrame extends JFrame implements MouseListener {
                 if(keyCode == KeyEvent.VK_ENTER){
                     if(current!=null) {
                         current = null;
-                        System.out.println("current made null");
                     }
                     Quest q=null;
                     for(Quest quest : me.getQuestList()){
@@ -484,7 +475,6 @@ public class GameFrame extends JFrame implements MouseListener {
                 //if the key typed is a number, there is an active PrintPapers quest, and the minigame in D-Shop is active: add the typed number (as a String) to the PrintPapers quest's quantity value
                 if(keyCode>47&&keyCode<58&&minigame!=null&&me.getCurrentBuilding()==2&&me.findQuestType(3)!=null){
                     ((PrintPapers) me.findQuestType(3)).editQuantity(Integer.toString(keyCode-48));
-                    System.out.println("quantity is now "+((PrintPapers) me.findQuestType(3)).getQuantity());
                 }
 
                 //if the player is in NBL and the minigame is active
@@ -496,7 +486,6 @@ public class GameFrame extends JFrame implements MouseListener {
                             //if a letter key is pressed: progress the email by 1 character
                             if (keyCode > 64 && keyCode < 91) {
                                 ((SendEmail) me.findQuestType(4)).incrementKeyCount();
-                                System.out.println("keyCount is now " + ((SendEmail) me.findQuestType(4)).getKeyCount());
                             }
                         }
                         //if the email has been fully typed
@@ -504,7 +493,6 @@ public class GameFrame extends JFrame implements MouseListener {
                             //if the Enter key is pressed: send the email
                             if (keyCode == KeyEvent.VK_ENTER) {
                                 ((SendEmail) me.findQuestType(4)).sendEmail();
-                                System.out.println("sent email!");
                             }
                         }
                     }
@@ -512,7 +500,6 @@ public class GameFrame extends JFrame implements MouseListener {
                     else if(me.findQuestType(4)!=null&&me.findQuestType(4).getStatus()==1&&keyCode == KeyEvent.VK_ENTER) {
                         ((SendEmail)me.findQuestType(4)).complete();
                         minigame = null;
-                        System.out.println("made minigame null");
                     }
                     //if there is an uncompleted PictureCats quest
                     else if(me.findQuestType(5)!=null&&me.findQuestType(5).getStatus()==0&&me.findQuestType(4)==null){
@@ -521,7 +508,6 @@ public class GameFrame extends JFrame implements MouseListener {
                             if (keyCode == KeyEvent.VK_ENTER) {
                                 ((PictureCats) me.findQuestType(5)).resetJustSent();
                                 minigame=null;
-                                System.out.println("made minigame null");
                             }
                         }
                         //if the email has not been fully typed
@@ -529,7 +515,6 @@ public class GameFrame extends JFrame implements MouseListener {
                             //if a letter key is pressed: progress the email by 1 character
                             if (keyCode > 64 && keyCode < 91) {
                                 ((PictureCats) me.findQuestType(5)).incrementKeyCount();
-                                System.out.println("keyCount is now " + ((PictureCats) me.findQuestType(5)).getKeyCount());
                             }
                         }
                         //if the email has been fully typed
@@ -543,7 +528,6 @@ public class GameFrame extends JFrame implements MouseListener {
                                 //if the player took the correct number of photos: send the email
                                 else {
                                     ((PictureCats) me.findQuestType(5)).sendEmail();
-                                    System.out.println("sent email!");
                                 }
                             }
                         }
@@ -552,7 +536,6 @@ public class GameFrame extends JFrame implements MouseListener {
                     else if(me.findQuestType(5)!=null&&keyCode == KeyEvent.VK_ENTER&&me.findQuestType(5).getStatus()==1) {
                         ((PictureCats)me.findQuestType(5)).complete();
                         minigame = null;
-                        System.out.println("made minigame null");
                     }
                     else if(me.findQuestType(4)==null&&me.findQuestType(5)==null&&keyCode==KeyEvent.VK_ENTER)
                         minigame=null;
@@ -593,10 +576,8 @@ public class GameFrame extends JFrame implements MouseListener {
                                 else {
                                     if (me.getCurrentBuilding() == 2 && me.findQuestType(3) != null && !(((PrintPapers) me.findQuestType(3)).getQuantity().equals(""))&&me.getItemNum()==0) {
                                         ((DeliverQuest) me.findQuestType(3)).takeItem(0);
-                                        System.out.println("took papers");
                                     }
                                     minigame = null;
-                                    System.out.println("made minigame null");
                                 }
                             }
                             //if the player is on the leftmost side of the interior
@@ -607,7 +588,6 @@ public class GameFrame extends JFrame implements MouseListener {
                                         minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
                                     else {
                                         minigame = null;
-                                        System.out.println("made minigame null");
                                     }
                                 }
                             }
@@ -620,7 +600,6 @@ public class GameFrame extends JFrame implements MouseListener {
                     //if the player is not holding any items, is in prof's building, has an active DeliverPapers quest, and has not received papers for said quest: take papers
                     if (me.getItemNum() == 0&&me.getCurrentBuilding()==8&&me.findQuestType(1)!=null&&me.findQuestType(1).getStatus()==0) {
                         ((DeliverPapers) me.findQuestType(1)).takeItem(0);
-                        System.out.println("took papers");
                     }
                 }
 
@@ -632,14 +611,12 @@ public class GameFrame extends JFrame implements MouseListener {
                             //if it is a DeliverPapers quest: place the papers
                             if(i==1){
                                 ((DeliverQuest) me.findQuestType(i)).placeItem();
-                                System.out.println("placed papers");
                                 break;
                             }
                             //if it is an OrderFood quest: place the order if the order is correct and reset the quest if not
                             if (i==2) {
                                 if (((OrderFood) me.findQuestType(i)).hasCorrectOrder()) {
                                     ((DeliverQuest) me.findQuestType(i)).placeItem();
-                                    System.out.println("placed order");
                                 }
                                 else {
                                     ((OrderFood) me.findQuestType(i)).resetQuest();
@@ -650,7 +627,6 @@ public class GameFrame extends JFrame implements MouseListener {
                             //if it is a PrintPapers quest: place the papers if the quantity is correct and reset the quest if not
                             if(((PrintPapers) me.findQuestType(i)).hasCorrectQuantity()){
                                 ((DeliverQuest) me.findQuestType(i)).placeItem();
-                                System.out.println("placed papers");
                             }
                             else{
                                 ((PrintPapers) me.findQuestType(i)).resetQuest();
@@ -663,7 +639,6 @@ public class GameFrame extends JFrame implements MouseListener {
                 //if the Space key is pressed, there is an active minigame, and there is an active PictureCats quest: add 1 to the number of photos taken
                 if(keyCode==KeyEvent.VK_SPACE&&me.getCurrentBuilding()==3&&minigame!=null&&me.findQuestType(5)!=null){
                     ((PictureCats) me.findQuestType(5)).incrementTakenPics();
-                    System.out.println("you've taken a total of "+((PictureCats) me.findQuestType(5)).getTakenPics()+" photos!");
                 }
 
                 if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
@@ -729,7 +704,6 @@ public class GameFrame extends JFrame implements MouseListener {
                 //if the player is in a stall, there is an active OrderFood quest, and that quest is in the phase where the player has not yet taken an order: take the corresponding order and leave the stall
                 if (me.getCurrentStall() != 0&&me.findQuestType(2)!=null&&me.findQuestType(2).getStatus()==0&&me.getItemNum()==0) {
                     ((OrderFood) me.findQuestType(2)).takeItem(me.getCurrentStall() * 3 - (2-i));
-                    System.out.println("took food order#" + (me.getCurrentStall() * 3 - (2-i)));
                     me.setCurrentStall(0);
                 }
                 break;
@@ -829,8 +803,7 @@ public class GameFrame extends JFrame implements MouseListener {
                     if(other!=null){
                         other.setX(otherX);
                         other.setY(otherY);
-                        if(me.getCurrentBuilding()==0&&other.getCurrentBuilding()==0)
-                            other.setDirection(otherDirection);
+                        other.setDirection(otherDirection);
                         other.setCurrentBuilding(otherBuilding);
                         other.setInsideX(otherInsideX);
                         other.setInsideMapX(otherInsideMapX);
