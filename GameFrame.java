@@ -421,13 +421,10 @@ public class GameFrame extends JFrame implements MouseListener {
                     }
                     if(q!=null)
                         q.finish(me);
-
-                    if(me.findQuestType(4)==null&&me.findQuestType(5)==null&&minigame!=null)
-                        minigame=null;
                 }
 
-                //if the key typed is a number and the minigame in D-Shop is active: add the typed number (as a String) to the PrintPapers quest's quantity value
-                if(keyCode>47&&keyCode<58&&minigame!=null&&me.getCurrentBuilding()==2){
+                //if the key typed is a number, there is an active PrintPapers quest, and the minigame in D-Shop is active: add the typed number (as a String) to the PrintPapers quest's quantity value
+                if(keyCode>47&&keyCode<58&&minigame!=null&&me.getCurrentBuilding()==2&&me.findQuestType(3)!=null){
                     ((PrintPapers) me.findQuestType(3)).editQuantity(Integer.toString(keyCode-48));
                     System.out.println("quantity is now "+((PrintPapers) me.findQuestType(3)).getQuantity());
                 }
@@ -481,6 +478,7 @@ public class GameFrame extends JFrame implements MouseListener {
                     else if(me.findQuestType(4)!=null&&me.findQuestType(4).getStatus()==1&&keyCode == KeyEvent.VK_ENTER) {
                         ((SendEmail)me.findQuestType(4)).complete();
                         minigame = null;
+                        System.out.println("made minigame null");
                     }
                     //if there is an uncompleted PictureCats quest
                     else if(me.findQuestType(5)!=null&&me.findQuestType(5).getStatus()==0&&me.findQuestType(4)==null){
@@ -489,6 +487,7 @@ public class GameFrame extends JFrame implements MouseListener {
                             if (keyCode == KeyEvent.VK_ENTER) {
                                 ((PictureCats) me.findQuestType(5)).resetJustSent();
                                 minigame=null;
+                                System.out.println("made minigame null");
                             }
                         }
                         //if the email has not been fully typed
@@ -506,7 +505,6 @@ public class GameFrame extends JFrame implements MouseListener {
                                 //if the player took the wrong number of photos: reset the quest
                                 if(!((PictureCats) me.findQuestType(5)).hasCorrectPhotos()) {
                                     ((PictureCats) me.findQuestType(5)).resetQuest();
-                                    System.out.println("wrong photos, try again!");
                                 }
                                 //if the player took the correct number of photos: send the email
                                 else {
@@ -520,6 +518,7 @@ public class GameFrame extends JFrame implements MouseListener {
                     else if(me.findQuestType(5)!=null&&keyCode == KeyEvent.VK_ENTER&&me.findQuestType(5).getStatus()==1) {
                         ((PictureCats)me.findQuestType(5)).complete();
                         minigame = null;
+                        System.out.println("made minigame null");
                     }
                 }
                 //if the Enter key is pressed:
@@ -561,6 +560,7 @@ public class GameFrame extends JFrame implements MouseListener {
                                         System.out.println("took papers");
                                     }
                                     minigame = null;
+                                    System.out.println("made minigame null");
                                 }
                             }
                             //if the player is on the leftmost side of the interior
@@ -572,8 +572,10 @@ public class GameFrame extends JFrame implements MouseListener {
                                 else if (me.getCurrentBuilding() == 1) {
                                     if (minigame == null)
                                         minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
-                                    else
+                                    else {
                                         minigame = null;
+                                        System.out.println("made minigame null");
+                                    }
                                 }
                             }
                         }
