@@ -32,12 +32,12 @@ public class GameCanvas extends JComponent{
 
     protected void paintComponent(Graphics graphics) {
         Graphics2D g2d = (Graphics2D) graphics;
-        //show title screen first
+        //if in title screen
         if (frame.getGameState()==1) {
             g2d.drawImage(titleScreen, 0, 0, null);
             mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.getDirection() + ".png"));
             otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
-            if (me.getStartPressed() == true) {
+            if (me.getStartPressed()) {
                 g2d.setFont(customFont);
                 g2d.setColor(Color.black);
                 g2d.setFont(g2d.getFont().deriveFont(25f));
@@ -52,7 +52,9 @@ public class GameCanvas extends JComponent{
                 g2d.drawImage(otherSprite, 150, 400, null);
                 g2d.drawImage(mySprite, 200, 400, null);
             }
-        } else if (frame.getGameState()==2) {
+        }
+        //if the game has started
+        else if (frame.getGameState()==2) {
             //if the player is not in a building
             if (me.getCurrentBuilding() == 0) {
                 g2d.drawImage(map, 0, 0, null);
@@ -74,14 +76,15 @@ public class GameCanvas extends JComponent{
                         System.out.println("drawing papers");
                     }
                     //if the current quest's target building is the same as the building the player is in
-                    if (me.getCurrentQuest() != null && me.getCurrentBuilding() == me.getCurrentQuest().getTargetBuildingNum()) {
+                    if (me.getCompletedQuest() != null) {
                         //if the current quest is in the phase where the player has placed the item in the designated building: draw the corresponding item
-                        if (me.getCurrentQuest().getStatus() == 2) {
-                            if (me.getCurrentQuest().getQuestType() == 2)
+                        if (me.getCompletedQuest().getStatus() == 2) {
+                            if (me.getCompletedQuest().getQuestType() == 2)
                                 itemOnMap = invFood;
                             else
                                 itemOnMap = invPaper;
-                            g2d.drawImage(itemOnMap, me.getInsideMapX() + 34, 500, null);
+                            //g2d.drawImage(itemOnMap, me.getInsideMapX() + 34, 500, null);
+                            g2d.drawImage(itemOnMap, 400, 500, null);
                             System.out.println("drawing itemOnMap");
                         }
                     }
