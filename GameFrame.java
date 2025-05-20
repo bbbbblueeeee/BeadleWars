@@ -21,7 +21,7 @@ public class GameFrame extends JFrame implements MouseListener {
     private int width,height,playerID,currentHour,currentMinute;
     private Container contentPane;
     private Player me,other;
-    private Timer animationTimer,clockTimer,questManagerTimer,positionCheckingTimer;
+    private Timer animationTimer,clockTimer,questManagerTimer,questManagerTimer2,positionCheckingTimer;
     private boolean up,down,left,right;
     private Image minigame;
     private Socket socket;
@@ -119,7 +119,7 @@ public class GameFrame extends JFrame implements MouseListener {
         this.setUpTimer();
     }
 
-    private void connectToServer(){
+    public void connectToServer(){
         try {
             // change once this gets tested on other devices i think
            socket = new Socket("localhost", 11037);
@@ -238,6 +238,23 @@ public class GameFrame extends JFrame implements MouseListener {
 
         positionCheckingTimer.setInitialDelay(25);
         positionCheckingTimer.start();
+    }
+
+    private void setUpQuestManagerTimer2(){
+        questManagerTimer2=new Timer(110,new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae){
+                if(me.getQuestList().get(0)==null) {
+                    int random = (int) (Math.random() * 5) + 1;
+                    while (me.findQuestType(random) != null)
+                        random = (int) (Math.random() * 5) + 1;
+                    me.addQuest(random);
+                }
+            }
+        });
+
+        questManagerTimer.setInitialDelay(100);
+        questManagerTimer.start();
     }
 
     private void setUpQuestManagerTimer(){
@@ -481,11 +498,8 @@ public class GameFrame extends JFrame implements MouseListener {
                             }
                             //if the player is on the leftmost side of the interior
                             else if (me.getInsideMapX() == 0 && me.getInsideX() < 230) {
-                                //if the player is in a SIC building: make the minigame active and assign it to a whiteboard image
-                                if (me.getCurrentBuilding() == 5 || me.getCurrentBuilding() == 6 || me.getCurrentBuilding() == 7)
-                                    minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/whiteboard.png"));
                                 //if the player is in NBL: switch the minigame to active or inactive depending on its current state
-                                else if (me.getCurrentBuilding() == 1) {
+                                if (me.getCurrentBuilding() == 1) {
                                     if (minigame == null)
                                         minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
                                     else {
@@ -689,6 +703,7 @@ public class GameFrame extends JFrame implements MouseListener {
                             me.initializeQuests();
                             setUpTimer2();
                             setUpQuestManagerTimer();
+                            setUpQuestManagerTimer2();
                             setUpPositionCheckingTimer();
                             clip.start();
                             repaint();
@@ -755,12 +770,5 @@ public class GameFrame extends JFrame implements MouseListener {
             }
         }
 
-    }
-
-
-    public static void main(String[] args) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
-        GameFrame gameFrame=new GameFrame(1024,768);
-        gameFrame.connectToServer();
-        gameFrame.setUpGUI();
     }
 }

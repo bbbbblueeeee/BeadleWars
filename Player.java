@@ -298,6 +298,7 @@ public class Player {
                     quests.set(j,quests.get(j+1));
                 quests.set(quests.size()-1,null);
                 System.out.println("removed a quest");
+                break;
             }
         }
         points+=q.getPoints();
@@ -359,24 +360,24 @@ public class Player {
     public void addQuest(int t){
         if (t == 1) {
             int i=(int)(Math.random()*3+5);
-            getQuestList().add(new DeliverPapers(this,i));
+            quests.add(new DeliverPapers(this,i));
             System.out.println("assigned deliver papers to building#"+i);
         } else if (t == 2) {
             int i=(int)(Math.random()*4+5);
             int o=(int)(Math.random()*9+1);
-            getQuestList().add(new OrderFood(this,i,o));
+            quests.add(new OrderFood(this,i,o));
             System.out.println("assigned deliver order#"+o+" to building#"+i);
         } else if (t == 3) {
             int i=(int)(Math.random()*4+5);
             int q=(int)(Math.random()*25+5);
-            getQuestList().add(new PrintPapers(this,i,q));
+            quests.add(new PrintPapers(this,i,q));
             System.out.println("assigned deliver "+q+" papers to building#"+i);
         } else if(t==4){
-            getQuestList().add(new SendEmail(this,0));
+            quests.add(new SendEmail(this,0));
             System.out.println("assigned send email#"+0);
         } else if(t==5){
             int p=(int)(Math.random()*11+10);
-            getQuestList().add(new PictureCats(this,p));
+            quests.add(new PictureCats(this,p));
             System.out.println("assigned picture cats "+p+" times and then send email");
         }
     }

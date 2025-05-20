@@ -95,7 +95,7 @@ public class GameCanvas extends JComponent{
                         if (q.getQuestType() == 1)
                             string = "Deliver papers from \nProfs' Building to " + buildings[q.getTargetBuildingNum() - 1] + ".";
                         else if (q.getQuestType() == 2)
-                            string = "Get " + orders[((OrderFood) q).getWantedOrder() - 1] + " from \nGomburza Caf and bring \nit to " + buildings[q.getTargetBuildingNum() - 1] + ".";
+                            string = "Get " + orders[((OrderFood) q).getWantedOrder() - 1] + "\n from Gomburza Caf and \nbring it to " + buildings[q.getTargetBuildingNum() - 1] + ".";
                         else if (q.getQuestType() == 3)
                             string = "Print " + ((PrintPapers) q).getWantedQuantity() + " papers in \nD-Shop and bring them \nto " + buildings[q.getTargetBuildingNum() - 1] + ".";
                         else if (q.getQuestType() == 4)
@@ -159,17 +159,8 @@ public class GameCanvas extends JComponent{
                         i += 35;
                     }
                 }
-                //if the player is not in a building: draw map and overworld sprites
-                if (me.getCurrentBuilding() == 0) {
-                    g2d.drawImage(map, 0, 0, null);
-                    mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.getDirection() + ".png"));
-                    otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
-                    g2d.drawImage(mySprite, me.getX(), me.getY(), null);
-                    g2d.drawImage(otherSprite, other.getX(), other.getY(), null);
-                    repaint();
-                }
                 //if the player is in a building
-                else {
+                if (me.getCurrentBuilding() != 0) {
                     //if the player isn't in a Gomz stall: draws the interior background and the player's indoor sprite
                     if (me.getCurrentStall() == 0) {
                         insideMap = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/interior_" + me.getCurrentBuilding() + ".png"));
