@@ -58,11 +58,7 @@ public class GameCanvas extends JComponent{
         //if in title screen
         if (frame.getGameState()==1) {
             g2d.drawImage(titleScreen, 0, 0, null);
-            mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.getDirection() + ".png"));
-            System.out.println(other.getColorNum());
-            System.out.println(other.getDirection());
-            otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
-            if (me.getStartPressed()) {
+            if (me.getStartPressed() == true) {
                 g2d.setFont(customFont);
                 g2d.setColor(Color.black);
                 g2d.setFont(g2d.getFont().deriveFont(25f));
@@ -70,14 +66,14 @@ public class GameCanvas extends JComponent{
             }
             if (playerID == 1) {
                 otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
-                g2d.drawImage(mySprite, 150, 400, null);
-                g2d.drawImage(otherSprite, 200, 400, null);
+                g2d.drawImage(mySprite, 198, 542, null);
+                g2d.drawImage(otherSprite, 342, 542, null);
             } else {
                 otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
-                g2d.drawImage(otherSprite, 150, 400, null);
-                g2d.drawImage(mySprite, 200, 400, null);
+                g2d.drawImage(otherSprite, 342, 542, null);
+                g2d.drawImage(mySprite, 198, 542, null);
             }
-        }
+    }
         //if the game has started
         else if (frame.getGameState()==2) {
             //if the player is not in a building
