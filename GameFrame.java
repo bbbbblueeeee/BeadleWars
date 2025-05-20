@@ -421,6 +421,9 @@ public class GameFrame extends JFrame implements MouseListener {
                     }
                     if(q!=null)
                         q.finish(me);
+
+                    if(me.findQuestType(4)==null&&me.findQuestType(5)==null&&minigame!=null)
+                        minigame=null;
                 }
 
                 //if the key typed is a number and the minigame in D-Shop is active: add the typed number (as a String) to the PrintPapers quest's quantity value
@@ -480,7 +483,7 @@ public class GameFrame extends JFrame implements MouseListener {
                         minigame = null;
                     }
                     //if there is an uncompleted PictureCats quest
-                    else if(me.findQuestType(5)!=null&&me.findQuestType(5).getStatus()!=2){
+                    else if(me.findQuestType(5)!=null&&me.findQuestType(5).getStatus()==0&&me.findQuestType(4)==null){
                         //if an incorrect PictureCats email was just sent
                         if(((PictureCats) me.findQuestType(5)).wasJustSent()) {
                             if (keyCode == KeyEvent.VK_ENTER) {
@@ -499,22 +502,22 @@ public class GameFrame extends JFrame implements MouseListener {
                         //if the email has been fully typed
                         else {
                             //if the Enter key is pressed:
-                            if (keyCode == KeyEvent.VK_ENTER&&me.findQuestType(5).getStatus()==0) {
-                                //if the player took the correct number of photos: send the email
-                                if(((PictureCats) me.findQuestType(5)).hasCorrectPhotos()) {
-                                    ((PictureCats) me.findQuestType(5)).sendEmail();
-                                    System.out.println("sent email!");
-                                }
+                            if (keyCode == KeyEvent.VK_ENTER&&me.findQuestType(5).getStatus()==0){
                                 //if the player took the wrong number of photos: reset the quest
-                                else {
+                                if(!((PictureCats) me.findQuestType(5)).hasCorrectPhotos()) {
                                     ((PictureCats) me.findQuestType(5)).resetQuest();
                                     System.out.println("wrong photos, try again!");
+                                }
+                                //if the player took the correct number of photos: send the email
+                                else {
+                                    ((PictureCats) me.findQuestType(5)).sendEmail();
+                                    System.out.println("sent email!");
                                 }
                             }
                         }
                     }
-                    //if there is a sent PictureCats quest
-                    else if(me.findQuestType(5)!=null&&keyCode == KeyEvent.VK_ENTER) {
+                    //if there is a sent PictureCats quest: mark the quest as completed and exit the minigame
+                    else if(me.findQuestType(5)!=null&&keyCode == KeyEvent.VK_ENTER&&me.findQuestType(5).getStatus()==1) {
                         ((PictureCats)me.findQuestType(5)).complete();
                         minigame = null;
                     }
@@ -549,7 +552,7 @@ public class GameFrame extends JFrame implements MouseListener {
                             //if the player is in D-Shop or Pawra
                             if (me.getCurrentBuilding() == 2 || me.getCurrentBuilding() == 3) {
                                 //if there is no active minigame: assign it a corresponding image
-                                if (minigame == null)
+                                if (minigame == null)s
                                     minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
                                 //if there is an active minigame: make the minigame inactive
                                 else {
@@ -565,7 +568,7 @@ public class GameFrame extends JFrame implements MouseListener {
                                 //if the player is in a SIC building: make the minigame active and assign it to a whiteboard image
                                 if (me.getCurrentBuilding() == 5 || me.getCurrentBuilding() == 6 || me.getCurrentBuilding() == 7)
                                     minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/whiteboard.png"));
-                                //if the player is in NBL: switch the minigame's to active or inactive depending on its current state
+                                //if the player is in NBL: switch the minigame to active or inactive depending on its current state
                                 else if (me.getCurrentBuilding() == 1) {
                                     if (minigame == null)
                                         minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
