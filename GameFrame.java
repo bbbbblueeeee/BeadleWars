@@ -552,7 +552,7 @@ public class GameFrame extends JFrame implements MouseListener {
                             //if the player is in D-Shop or Pawra
                             if (me.getCurrentBuilding() == 2 || me.getCurrentBuilding() == 3) {
                                 //if there is no active minigame: assign it a corresponding image
-                                if (minigame == null)s
+                                if (minigame == null)
                                     minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
                                 //if there is an active minigame: make the minigame inactive
                                 else {
