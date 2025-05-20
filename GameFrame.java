@@ -378,21 +378,20 @@ public class GameFrame extends JFrame implements MouseListener {
                             }
                         }
                     }
-
-                    //for drawing the clock
-                    g2d.setColor(Color.white);
-                    g2d.setFont(customFont);
-                    g2d.setFont(g2d.getFont().deriveFont(35f));
-                    String clockTime = String.format("Time : %02d:%02d", currentHour, currentMinute);
-                    g2d.drawString(clockTime, 840, 25);
-
-
-                    // If game time is over, show end screen
-                    if (showEndScreen) {
-                        g2d.drawImage(endScreen, 0, 0, null);
-                        g2d.drawImage(mySprite, 500, 150, null);
-                        g2d.drawImage(otherSprite, 550, 150, null);
                     }
+                //for drawing the clock
+                g2d.setColor(Color.white);
+                g2d.setFont(customFont);
+                g2d.setFont(g2d.getFont().deriveFont(35f));
+                String clockTime = String.format("Time : %02d:%02d", currentHour, currentMinute);
+                g2d.drawString(clockTime, 840, 25);
+
+
+                // If game time is over, show end screen
+                if (showEndScreen) {
+                    g2d.drawImage(endScreen, 0, 0, null);
+                    g2d.drawImage(mySprite, 500, 150, null);
+                    g2d.drawImage(otherSprite, 550, 150, null);
                 }
 
             }
