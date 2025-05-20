@@ -14,6 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 import java.util.TimerTask;
 
 public class GameFrame extends JFrame implements MouseListener {
@@ -121,8 +122,10 @@ public class GameFrame extends JFrame implements MouseListener {
 
     public void connectToServer(){
         try {
-            // change once this gets tested on other devices i think
-           socket = new Socket("localhost", 11037);
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Please input the IP Address: ");
+            String ipAddress = scanner.nextLine();
+            socket = new Socket(ipAddress, 11037);
            DataInputStream in = new DataInputStream(socket.getInputStream());
            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
            playerID = in.readInt();
