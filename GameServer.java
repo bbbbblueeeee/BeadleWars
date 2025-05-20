@@ -5,15 +5,24 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+
+
+
 public class GameServer {
+
+
+
 
     private ServerSocket ss;
     private int numPlayers,maxPlayers;
     private Socket p1Socket,p2Socket;
     private ReadFromClient p1ReadRunnable,p2ReadRunnable;
     private WriteToClient p1WriteRunnable,p2WriteRunnable;
-    private int p1x,p1y,p1d,p1b,p1ix,p1imx,p2x,p2y,p2d,p2b,p2ix,p2imx,p1color,p2color; //x and y coords for players
+    private int p1x,p1y,p1d,p1b,p1ix,p1imx,p2x,p2y,p2d,p2b,p2ix,p2imx,p1color,p2color,p1points, p2points; //x and y coords for players
     private Boolean p1start,p2start;
+
+
+
 
     public GameServer(){
         System.out.println("==== GAME SERVER ====");
@@ -21,6 +30,12 @@ public class GameServer {
         maxPlayers = 2;
         p1start = false;
         p2start = false;
+
+
+
+
+
+
 
 
         try {
@@ -32,6 +47,12 @@ public class GameServer {
     }
 
 
+
+
+
+
+
+
     public void acceptConnections() {
         try {
             System.out.println("accepting connections...");
@@ -40,12 +61,21 @@ public class GameServer {
                 DataInputStream in = new DataInputStream(s.getInputStream());
                 DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
+
+
+
                 numPlayers++;
                 out.writeInt(numPlayers);
                 System.out.println("Player #"+numPlayers+" has joined.");
 
+
+
+
                 ReadFromClient rfc = new ReadFromClient(numPlayers, in);
                 WriteToClient wtc = new WriteToClient(numPlayers, out);
+
+
+
 
                 if (numPlayers ==1)
                 {
@@ -61,10 +91,16 @@ public class GameServer {
                     p1WriteRunnable.sendStartMsg();
                     p2WriteRunnable.sendStartMsg();
 
+
+
+
                     Thread readThread1 = new Thread(p1ReadRunnable);
                     Thread readThread2 = new Thread(p2ReadRunnable);
                     readThread1.start();
                     readThread2.start();
+
+
+
 
                     Thread writeThread1 = new Thread(p1WriteRunnable);
                     Thread writeThread2 = new Thread(p2WriteRunnable);
@@ -78,10 +114,19 @@ public class GameServer {
         }
     }
 
+
+
+
     private class ReadFromClient implements Runnable{
+
+
+
 
         private int playerID;
         private DataInputStream dataIn;
+
+
+
 
         public ReadFromClient (int pid, DataInputStream in){
             playerID = pid;
@@ -101,6 +146,7 @@ public class GameServer {
                         p1imx=dataIn.readInt();
                         p1color = dataIn.readInt();
                         p1start = dataIn.readBoolean();
+                        p1points = dataIn.readInt();
                     }
                     else
                     {
@@ -112,8 +158,12 @@ public class GameServer {
                         p2imx=dataIn.readInt();
                         p2color = dataIn.readInt();
                         p2start = dataIn.readBoolean();
+                        p2points = dataIn.readInt();
                     }
                 }
+
+
+
 
             } catch (IOException ex) {
                 System.out.println("IOEx from RFC run()");
@@ -121,10 +171,19 @@ public class GameServer {
         }
     }
 
+
+
+
     private class WriteToClient implements Runnable{
+
+
+
 
         private int playerID;
         private DataOutputStream dataOut;
+
+
+
 
         public WriteToClient (int pid, DataOutputStream out){
             playerID = pid;
@@ -144,6 +203,7 @@ public class GameServer {
                         dataOut.writeInt(p2imx);
                         dataOut.writeInt(p2color);
                         dataOut.writeBoolean(p2start);
+                        dataOut.writeInt(p2points);
                         dataOut.flush();
                     }
                     else
@@ -156,6 +216,7 @@ public class GameServer {
                         dataOut.writeInt(p1imx);
                         dataOut.writeInt(p1color);
                         dataOut.writeBoolean(p1start);
+                        dataOut.writeInt(p1points);
                         dataOut.flush();
                     }
                     try{
@@ -165,10 +226,16 @@ public class GameServer {
                     }
                 }
 
+
+
+
             } catch (IOException ex) {
                 System.out.println("IOEx from WTC run()");
             }
         }
+
+
+
 
         public void sendStartMsg(){
             try{
@@ -179,8 +246,14 @@ public class GameServer {
         }
     }
 
+
+
+
     public static void main(String[] args) {
         GameServer gs = new GameServer();
         gs.acceptConnections();
     }
 }
+
+
+
