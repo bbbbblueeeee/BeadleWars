@@ -1,3 +1,28 @@
+/**
+ The GameCanvas class extends JComponent and is the canvas where all the graphics are drawn.
+ The class also supports importing custom fonts and updating of sprites.
+
+
+ @author Krystal O. Lim Tiong Soon (242615)
+ @author Francine Denise L. Lee (24537)
+ @version 20 May 2025
+
+
+ We have not discussed the Java language code in our program
+ with anyone other than our instructor or the teaching assistants
+ assigned to this course.
+
+
+ We have not used Java language code obtained from another student,
+ or any other unauthorized source, either modified or unmodified.
+
+
+ If any Java language code or documentation used in our program
+ was obtained from another source, such as a textbook or website,
+ that has been clearly noted with a proper citation in the comments
+ of our program.
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.InputStream;
@@ -10,6 +35,10 @@ public class GameCanvas extends JComponent{
     private int playerID;
     private GameFrame frame;
     private String[] buildings,orders;
+
+    /**
+     The constructor is used to initialize values and import a custom font used for the game.
+     */
 
     public GameCanvas(Player p1,Player p2,int id,GameFrame gf){
         me=p1;
@@ -52,6 +81,12 @@ public class GameCanvas extends JComponent{
             System.out.println("haha your font wont import");
         }
     }
+
+    /**
+     The paintComponent method draws all the objects used in the game. It also handles the switching
+     of scenes and repainting the canvas, which updates the assets in real time based on player input.
+     @param //g is what's used to draw the graphics on the canvas
+     */
 
     protected void paintComponent(Graphics graphics) {
         Graphics2D g2d = (Graphics2D) graphics;

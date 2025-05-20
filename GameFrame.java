@@ -1,3 +1,31 @@
+/**
+ The GameFrame class extends JFrame and implements MouseListener. This class is where most of the game
+ logic is held. It handles seeral arrays of rectangles that are used to block the player from going off
+ path and act as "clickable squares" that perform an action when clicked with a mouse.
+ The class also handles the music file that plays throughout the game. It also handles connecting with the
+ server, and setting up timers
+
+
+ @author Krystal O. Lim Tiong Soon (242615)
+ @author Francine Denise L. Lee (24537)
+ @version 20 May 2025
+
+
+ We have not discussed the Java language code in our program
+ with anyone other than our instructor or the teaching assistants
+ assigned to this course.
+
+
+ We have not used Java language code obtained from another student,
+ or any other unauthorized source, either modified or unmodified.
+
+
+ If any Java language code or documentation used in our program
+ was obtained from another source, such as a textbook or website,
+ that has been clearly noted with a proper citation in the comments
+ of our program.
+ */
+
 import com.sun.jdi.event.ExceptionEvent;
 import org.w3c.dom.css.Rect;
 
@@ -39,6 +67,10 @@ public class GameFrame extends JFrame implements MouseListener {
     private AudioInputStream audioStream;
     private Clip clip;
 
+    /**
+     The GameFrame constructor initializes the variables and throws several Exceptions
+     used for music.It also sets the music to loop continuously.
+     */
     public GameFrame(int w,int h) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         width=w;
         height=h;
@@ -61,6 +93,13 @@ public class GameFrame extends JFrame implements MouseListener {
         clip.open(audioStream);
         clip.loop(Clip.LOOP_CONTINUOUSLY);
     }
+
+
+    /**
+     sets up the GUI by casting gameCanvas to the ContentPane and packing it, assigning
+     The title, DefaultCloseOperation, timers and setting the visibility to true. It also creates the
+     arraylists of rectangle that handle different actions.
+     */
 
     public void setUpGUI(){
         contentPane=this.getContentPane();
@@ -119,6 +158,9 @@ public class GameFrame extends JFrame implements MouseListener {
         this.setVisible(true);
         this.setUpTimer();
     }
+    /**
+     sets up a connection to the server. sets a scanner object to read which IP Address to connect to.
+     */
 
     public void connectToServer(){
         try {
@@ -141,6 +183,10 @@ public class GameFrame extends JFrame implements MouseListener {
         }
     }
 
+    /**
+     Sets up how a player looks on their screen and how they look on the other's.
+     */
+
     private void createPlayer(){
         if (playerID ==1){
             me=new Player(445,108,7,2);
@@ -151,6 +197,11 @@ public class GameFrame extends JFrame implements MouseListener {
             me=new Player(445,626,3,1);
         }
     }
+    /**
+     checks if the player is on the path
+     @param /x and y checks if the player's x and y coordinates are on path
+     @return a boolean, whether the player is on the path or not
+     */
 
     private boolean isOnPath(int x,int y){
         for (Rectangle path : paths){
@@ -159,6 +210,12 @@ public class GameFrame extends JFrame implements MouseListener {
         }
         return false;
     }
+    /**
+     checks if a player iscolliding with the other player
+     @param //other the other player object
+     @return a boolean, whether the players are colliding or not
+     */
+
     //player collision
     public boolean isColliding(Player other) {
         return !(me.getX() + 28 <= other.getX() ||
@@ -166,6 +223,12 @@ public class GameFrame extends JFrame implements MouseListener {
                 me.getY() + 28 <= other.getY() ||
                 me.getY() >= other.getY() + 28);
     }
+
+    /**
+     gets the current state the game is in based on if the title is showing, if the end screen is showing,
+     and if the main map and game a re showing.
+     @return an integer corresponding to the game state
+     */
 
     public int getGameState(){
         if(showTitleScreen)
@@ -175,18 +238,33 @@ public class GameFrame extends JFrame implements MouseListener {
         else
             return 3;
     }
+    /**
+     gets the current in game hour for the clock timer
+     @return the current hour
+     */
 
     public int getCurrentHour(){
         return currentHour;
     }
+    /**
+     gets the current in game minute for the clock timer
+     @return the current minute
+     */
 
     public int getCurrentMinute(){
         return currentMinute;
     }
+    /**
+     gets the assigned minigame
+     @return which minigame corresponds to the logic
+     */
 
     public Image getMinigame(){
         return minigame;
     }
+    /**
+     checks if the player is not in the correct coordinates, and repositions them so they will be.
+     */
 
     private void setUpPositionCheckingTimer(){
         positionCheckingTimer=new Timer(25,new ActionListener(){
@@ -243,6 +321,10 @@ public class GameFrame extends JFrame implements MouseListener {
         positionCheckingTimer.start();
     }
 
+    /**
+     Timer for when to give out quests and randomizes the quets given. Gives out a new quest every 48 seconds.
+     */
+
     private void setUpQuestManagerTimer2(){
         questManagerTimer2=new Timer(110,new ActionListener(){
             @Override
@@ -259,7 +341,9 @@ public class GameFrame extends JFrame implements MouseListener {
         questManagerTimer.setInitialDelay(100);
         questManagerTimer.start();
     }
-
+    /**
+     Timer for when to give out quests and randomizes the quets given. Gives out a new quest every 48 seconds.
+     */
     private void setUpQuestManagerTimer(){
         questManagerTimer=new Timer(48000,new ActionListener(){
             @Override
@@ -276,6 +360,11 @@ public class GameFrame extends JFrame implements MouseListener {
         questManagerTimer.setInitialDelay(48000);
         questManagerTimer.start();
     }
+
+
+    /**
+     Timer for the in game clock. adds 10 minutes to the clock every few seconds until it reaches 17:00.
+     */
 
     private void setUpTimer2() {
         // + 10 minutes every 2 seconds!!
@@ -301,6 +390,9 @@ public class GameFrame extends JFrame implements MouseListener {
         clockTimer.start();
     }
 
+    /**
+     Timer for making sure the players, when colliding with an object, doesn't go out of bounds.
+     */
 
     private void setUpTimer(){
         int interval=10;
@@ -352,6 +444,10 @@ public class GameFrame extends JFrame implements MouseListener {
         animationTimer.start();
     }
 
+    /**
+     SetUpKeyListener class assigns actions to be performed when pressing certain keys. It also handles conditional
+     statements to check which action to assign the key to
+     */
 
     private void setUpKeyListener(){
         KeyListener keyListener=new KeyListener() {
@@ -360,6 +456,10 @@ public class GameFrame extends JFrame implements MouseListener {
                 int keyCode = e.getKeyCode();
 
             }
+            /**
+             overrides keyreleased to set booleans for the character's direction
+             @param //e, to check which key was pressed
+             */
 
             @Override
             public void keyPressed(KeyEvent e) {
@@ -588,6 +688,11 @@ public class GameFrame extends JFrame implements MouseListener {
                     }
                 }
             }
+            /**
+             checks if the mouse cursor's bounds are within some arraylists of rectangles, and performs the
+             respective actions when within bounds and clicked.
+             @param //e, the mouse's actions
+             */
 
             @Override
             public void keyReleased(KeyEvent e) {
@@ -607,6 +712,10 @@ public class GameFrame extends JFrame implements MouseListener {
         contentPane.requestFocusInWindow();
         contentPane.addKeyListener(keyListener);
     }
+    /**
+     overrides the mousedPressed method
+     @param //e , the mouse action
+     */
 
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -650,33 +759,61 @@ public class GameFrame extends JFrame implements MouseListener {
         }
     }
 
+    /**
+     overrides the mousedPressed method
+     @param //e , the mouse action
+     */
+
     @Override
     public void mousePressed(MouseEvent e) {
 
     }
+    /**
+     overrides the mousedReleased method
+     @param //e , the mouse action
+     */
 
     @Override
     public void mouseReleased(MouseEvent e) {
 
     }
+    /**
+     overrides the mouseEntered method
+     @param // e , the mouse action
+     */
 
     @Override
     public void mouseEntered(MouseEvent e) {
 
     }
+    /**
+     overrides the mouseExited methid
+     @param e , the mouse action
+     */
 
     @Override
     public void mouseExited(MouseEvent e) {
 
     }
+    /**
+     ReadFromServer class implements runnable, µCommunicates with the server and reads datainput streams from it.
+     */
 
     private class ReadFromServer implements Runnable{
         private DataInputStream dataIn;
+
+        /**
+         Initializes datain
+         */
 
         public ReadFromServer (DataInputStream in){
             dataIn = in;
             System.out.println("ReadFromServer runnable created");
         }
+        /**
+         runs the readfromserver class
+         */
+
         public void run(){
             try{
                 while (true){
@@ -720,6 +857,9 @@ public class GameFrame extends JFrame implements MouseListener {
         }
 
         // for player's gui to start at the same time only when both players are connected successfully
+        /**
+         This method is for both player's gui to start at the same time only when both players are connected successfully
+         */
 
         public void waitForStartMsg(){
             try{
@@ -737,14 +877,24 @@ public class GameFrame extends JFrame implements MouseListener {
         }
 
     }
+    /**
+     The writetoserver classimplements runnable and send ot information to the server to receive
+     */
 
     private class WriteToServer implements Runnable{
         private DataOutputStream dataOut;
+        /**
+         initializes variables
+         */
 
         public WriteToServer (DataOutputStream out){
             dataOut = out;
             System.out.println("WriteToServer runnable created");
         }
+        /**
+         runs the writetoserver class
+         */
+
         public void run(){
             try{
                 while (true){
