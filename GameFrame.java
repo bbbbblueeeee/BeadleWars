@@ -181,7 +181,6 @@ public class GameFrame extends JFrame implements MouseListener {
                     otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
                     g2d.drawImage(mySprite, me.getX(), me.getY(), null);
                     g2d.drawImage(otherSprite, other.getX(), other.getY(), null);
-                    setUpTimer2();
                     repaint();
                 }
                 //if the player is in a building
