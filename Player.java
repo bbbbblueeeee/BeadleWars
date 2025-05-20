@@ -314,4 +314,22 @@ public class Player {
         return startPressed;
     }
 
+    public Quest getCurrentQuest(){
+        //if the player is holding an item
+        if (getItemNum() != 0) {
+            //look through the player's quest list for DeliverPapers, OrderFood, and PrintPapers quests
+            for (int i = 1; i <= 3; i++) {
+                //if the target building of an existing quest is the same as the player's current building and the quest is in the phase where the item has been taken: set that quest as current and break out of the loop
+                if (findQuestType(i) != null && findQuestType(i).getStatus() == 1 && findQuestType(i).getTargetBuildingNum() == getCurrentBuilding()) {
+                    return findQuestType(i);
+                }
+            }
+        }
+        return null;
+    }
+
+    public void setCurrentBuilding(int i){
+        currentBuilding=i;
+    }
+
 }
