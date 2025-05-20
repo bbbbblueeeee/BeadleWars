@@ -14,7 +14,13 @@ public abstract class Quest {
         return targetBuildingNum;
     }
 
+    public abstract int getStatus();
+
     public void finish(Player p){
-        p.addPoints(points);
+        p.finishQuest(this);
+    }
+
+    public int getPoints(){
+        return points;
     }
 }

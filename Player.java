@@ -131,7 +131,7 @@ public class Player {
         if (getCurrentBuilding()==1) {
             setDirection(2);
             setX(191);
-            setY(172);
+            setY(175);
         }
         else if(getCurrentBuilding()==2) {
             setDirection(3);
@@ -145,8 +145,8 @@ public class Player {
         }
         else if(getCurrentBuilding()==4) {
             setDirection(1);
-            setX(444);
-            setY(626);
+            setX(443);
+            setY(625);
         }
         else if(getCurrentBuilding()==5){
             setDirection(3);
@@ -269,16 +269,24 @@ public class Player {
         itemNum =0;
     }
 
-    public void addPoints(int num){
-        points+=num;
-    }
-
     public int getPoints(){
         return points;
     }
 
     public ArrayList<Quest> getQuestList(){
         return quests;
+    }
+
+    public void finishQuest(Quest q){
+        for(int i=0;i<quests.size();i++){
+            if(quests.get(i).getQuestType()==q.getQuestType()){
+                for(int j=i;j<quests.size()-1;j++)
+                    quests.set(j,quests.get(j+1));
+                quests.remove(quests.size()-1);
+                System.out.println("removed a quest");
+            }
+        }
+        points+=q.getPoints();
     }
 
     public int getCurrentStall(){

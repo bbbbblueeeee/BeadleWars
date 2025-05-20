@@ -3,7 +3,7 @@ import java.lang.reflect.Array;
 
 public class PictureCats extends Quest{
     public int wantedPics,takenPics,keyCount;
-    public boolean wrongAttempt;
+    public boolean wrongAttempt,sentEmail,justSent;
     public String[] email;
     public Player p;
 
@@ -14,6 +14,9 @@ public class PictureCats extends Quest{
         takenPics=0;
         keyCount=0;
         points=400;
+        wrongAttempt=false;
+        sentEmail=false;
+        justSent=false;
         questType=5;
 
         initializeEmail1();
@@ -36,6 +39,11 @@ public class PictureCats extends Quest{
     }
 
     public void sendEmail(){
+        sentEmail=true;
+        wrongAttempt=false;
+    }
+
+    public void complete(){
         taskComplete=true;
     }
 
@@ -52,11 +60,30 @@ public class PictureCats extends Quest{
             keyCount++;
     }
 
+    public int getStatus(){
+        if(taskComplete)
+            return 2;
+        else if(sentEmail)
+            return 1;
+        else
+            return 0;
+    }
+
+    public boolean wasJustSent(){
+        return justSent;
+    }
+
+    public void resetJustSent(){
+        justSent=false;
+    }
+
     public void resetQuest(){
         takenPics=0;
         keyCount=0;
         taskComplete=false;
+        sentEmail=false;
         wrongAttempt=true;
+        justSent=true;
     }
 
     public void initializeEmail1(){

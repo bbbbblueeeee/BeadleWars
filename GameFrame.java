@@ -63,6 +63,7 @@ public class GameFrame extends JFrame implements MouseListener {
         map=Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/map.png"));
         invPaper = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_paper.png"));
         invFood = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/inv_food.png"));
+        minigame=null;
         file = new File("Ooblets!.wav");
         audioStream = AudioSystem.getAudioInputStream(file);
         clip = AudioSystem.getClip();
@@ -163,17 +164,18 @@ public class GameFrame extends JFrame implements MouseListener {
                     if (me.getItemNum() != 0) {
                         //look through the player's quest list for DeliverPapers, OrderFood, and PrintPapers quests
                         for(int i=1;i<=3;i++){
-                            //if the target building of an existing quest is the same as the buliding the player is in: set that quest as current and break out of the loop
-                            if(me.findQuestType(i)!=null&&me.findQuestType(i).getTargetBuildingNum()==me.getCurrentBuilding()) {
+                            //if the target building of an existing quest is the same as the player's current building and the quest is in the phase where the item has been taken: set that quest as current and break out of the loop
+                            if(me.findQuestType(i)!=null&&me.findQuestType(i).getStatus()==1&&me.findQuestType(i).getTargetBuildingNum()==me.getCurrentBuilding()) {
                                 current = me.findQuestType(i);
+                                System.out.println("current quest assigned to quest type "+i);
                                 break;
                             }
                         }
                     }
                     //if the current quest's target building is the same as the building the player is in
-                    if (current != null&&me.getCurrentBuilding()==current.getTargetBuildingNum()) {
+                    if (current != null) {
                         //if the current quest is in the phase where the player has placed the item in the designated building: draw the corresponding item
-                        if(((DeliverQuest) current).getStatus()==2) {
+                        if(current.getStatus()==2) {
                             if (current.getQuestType() == 2)
                                 itemOnMap = invFood;
                             else
@@ -234,11 +236,11 @@ public class GameFrame extends JFrame implements MouseListener {
                 //if the player is in NBL
                 if(me.getCurrentBuilding()==1){
                     //if the player has an active SendEmails quest: set text font
-                    if(me.findQuestType(4)!=null) {
+                    if(me.findQuestType(4)!=null&&me.findQuestType(4).getStatus()!=2) {
                         g2d.setFont(customFont);
                         g2d.setFont(g2d.getFont().deriveFont(20f));
                         //if the player has sent the email: draw sent text
-                        if (me.findQuestType(4).taskComplete)
+                        if (me.findQuestType(4).getStatus()==1)
                             g2d.drawString("Your email has been sent!", 346, 254);
                             //if the player has not sent the email: draw email text
                         else {
@@ -250,14 +252,14 @@ public class GameFrame extends JFrame implements MouseListener {
                         }
                     }
                     //if the player has an active PictureCats quest: set text font
-                    else if(me.findQuestType(5)!=null){
+                    else if(me.findQuestType(5)!=null&&me.findQuestType(5).getStatus()!=2){
                         g2d.setFont(customFont);
                         g2d.setFont(g2d.getFont().deriveFont(20f));
                         // if the player has sent the email: draw sent text
-                        if (me.findQuestType(5).taskComplete)
+                        if (me.findQuestType(5).getStatus()==1)
                             g2d.drawString("Your email has been sent!", 346, 254);
                         //if the player sent the email with the wrong number of photos: draw retry text
-                        else if(((PictureCats) me.findQuestType(5)).hasWrongAttempt()) {
+                        else if(((PictureCats) me.findQuestType(5)).wasJustSent()) {
                             int i = 0;
                             for (String line : "Professor:\nDid you not see the number of photographs I asked for? \nDo it again, and do it properly this time.".split("\n")) {
                                 g2d.drawString(line, 346, 254 + i);
@@ -405,6 +407,22 @@ public class GameFrame extends JFrame implements MouseListener {
             public void keyPressed(KeyEvent e) {
                 int keyCode = e.getKeyCode();
 
+                if(keyCode == KeyEvent.VK_ENTER){
+                    if(current!=null) {
+                        current = null;
+                        System.out.println("current made null");
+                    }
+                    Quest q=null;
+                    for(Quest quest : me.getQuestList()){
+                        if(quest.isCompleted()) {
+                            q = quest;
+                            break;
+                        }
+                    }
+                    if(q!=null)
+                        q.finish(me);
+                }
+
                 //if the key typed is a number and the minigame in D-Shop is active: add the typed number (as a String) to the PrintPapers quest's quantity value
                 if(keyCode>47&&keyCode<58&&minigame!=null&&me.getCurrentBuilding()==2){
                     ((PrintPapers) me.findQuestType(3)).editQuantity(Integer.toString(keyCode-48));
@@ -437,8 +455,8 @@ public class GameFrame extends JFrame implements MouseListener {
 
                 //if the player is in NBL and the minigame is active
                 if(me.getCurrentBuilding()==1&&minigame!=null) {
-                    //if there is an uncompleted SendEmail quest
-                    if(me.findQuestType(4)!=null&&!me.findQuestType(4).isCompleted()) {
+                    //if there is an unsent SendEmail quest
+                    if(me.findQuestType(4)!=null&&me.findQuestType(4).getStatus()==0) {
                         //if the email has not been fully typed
                         if (((SendEmail) me.findQuestType(4)).getKeyCount() < ((SendEmail) me.findQuestType(4)).getEmailArray().length - 1) {
                             //if a letter key is pressed: progress the email by 1 character
@@ -456,10 +474,22 @@ public class GameFrame extends JFrame implements MouseListener {
                             }
                         }
                     }
+                    //if there is a sent SendEmail quest
+                    else if(me.findQuestType(4)!=null&&me.findQuestType(4).getStatus()==1&&keyCode == KeyEvent.VK_ENTER) {
+                        ((SendEmail)me.findQuestType(4)).complete();
+                        minigame = null;
+                    }
                     //if there is an uncompleted PictureCats quest
-                    else if(me.findQuestType(5)!=null&&!me.findQuestType(5).isCompleted()){
+                    else if(me.findQuestType(5)!=null&&me.findQuestType(5).getStatus()!=2){
+                        //if an incorrect PictureCats email was just sent
+                        if(((PictureCats) me.findQuestType(5)).wasJustSent()) {
+                            if (keyCode == KeyEvent.VK_ENTER) {
+                                ((PictureCats) me.findQuestType(5)).resetJustSent();
+                                minigame=null;
+                            }
+                        }
                         //if the email has not been fully typed
-                        if (((PictureCats) me.findQuestType(5)).getKeyCount() < ((PictureCats) me.findQuestType(5)).getEmailArray().length - 1) {
+                        else if (((PictureCats) me.findQuestType(5)).getKeyCount() < ((PictureCats) me.findQuestType(5)).getEmailArray().length - 1) {
                             //if a letter key is pressed: progress the email by 1 character
                             if (keyCode > 64 && keyCode < 91) {
                                 ((PictureCats) me.findQuestType(5)).incrementKeyCount();
@@ -469,7 +499,7 @@ public class GameFrame extends JFrame implements MouseListener {
                         //if the email has been fully typed
                         else {
                             //if the Enter key is pressed:
-                            if (keyCode == KeyEvent.VK_ENTER) {
+                            if (keyCode == KeyEvent.VK_ENTER&&me.findQuestType(5).getStatus()==0) {
                                 //if the player took the correct number of photos: send the email
                                 if(((PictureCats) me.findQuestType(5)).hasCorrectPhotos()) {
                                     ((PictureCats) me.findQuestType(5)).sendEmail();
@@ -483,9 +513,14 @@ public class GameFrame extends JFrame implements MouseListener {
                             }
                         }
                     }
+                    //if there is a sent PictureCats quest
+                    else if(me.findQuestType(5)!=null&&keyCode == KeyEvent.VK_ENTER) {
+                        ((PictureCats)me.findQuestType(5)).complete();
+                        minigame = null;
+                    }
                 }
-                //if the Enter or Z key is pressed:
-                else if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_Z) {
+                //if the Enter key is pressed:
+                else if (keyCode == KeyEvent.VK_ENTER) {
                     //if the player is not in a building: check all entryPoints
                     if (me.getCurrentBuilding() == 0) {
                         for (int i = 0; i < 8; i++) {
@@ -517,8 +552,13 @@ public class GameFrame extends JFrame implements MouseListener {
                                 if (minigame == null)
                                     minigame = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/minigame_" + me.getCurrentBuilding() + ".png"));
                                 //if there is an active minigame: make the minigame inactive
-                                else
+                                else {
+                                    if (me.getCurrentBuilding() == 2 && me.findQuestType(3) != null && !(((PrintPapers) me.findQuestType(3)).getQuantity().equals(""))) {
+                                        ((DeliverQuest) me.findQuestType(3)).takeItem(0);
+                                        System.out.println("took papers");
+                                    }
                                     minigame = null;
+                                }
                             }
                             //if the player is on the leftmost side of the interior
                             else if (me.getInsideMapX() == 0 && me.getInsideX() < 230) {
@@ -537,49 +577,46 @@ public class GameFrame extends JFrame implements MouseListener {
                     }
                 }
 
-                //if the I key is pressed
-                if(keyCode==KeyEvent.VK_I){
-                    //if the player is on the leftmost side of the interior
-                    if(me.getInsideMapX()==0&&me.getInsideX()<230) {
-                        //if the player is not holding any items, is in NBL, has an active DeliverPapers quest, and has not received papers for said quest: take papers
-                        if (me.getItemNum() == 0&&me.getCurrentBuilding()==8&&me.findQuestType(1)!=null&&((DeliverQuest)me.findQuestType(1)).getStatus()==0) {
-                            ((DeliverPapers) me.findQuestType(1)).takeItem(0);
-                            System.out.println("took papers");
-                        }
-                        //under normal circumstances
-                        else{
-                            //if there is an active DeliverPapers,OrderFood, or PrintPapers quest, the player is in its target building, and it is in the phase where its item has been taken
-                            for(int i=1;i<=3;i++){
-                                if(me.findQuestType(i)!=null&&me.findQuestType(i).getTargetBuildingNum()==me.getCurrentBuilding()&&((DeliverQuest) me.findQuestType(1)).getStatus()==1) {
-                                    //if it is a DeliverPapers quest: place the papers
-                                    if(i==1){
-                                        ((DeliverQuest) me.findQuestType(i)).placeItem();
-                                        System.out.println("placed papers");
-                                    }
-                                    //if it is an OrderFood quest: place the order if the order is correct and reset the quest if not
-                                    if (i==2) {
-                                        if (((OrderFood) me.findQuestType(i)).hasCorrectOrder()) {
-                                            ((DeliverQuest) me.findQuestType(i)).placeItem();
-                                            System.out.println("placed order");
-                                        }
-                                        else {
-                                            ((OrderFood) me.findQuestType(i)).resetQuest();
-                                            System.out.println("wrong order, try again");
-                                        }
-                                    }
-                                    //if it is a PrintPapers quest: place the papers if the quantity is correct and reset the quest if not
-                                    if(i==3){
-                                        if(((PrintPapers) me.findQuestType(i)).hasCorrectQuantity()){
-                                            ((DeliverQuest) me.findQuestType(i)).placeItem();
-                                            System.out.println("placed papers");
-                                        }
-                                        else{
-                                            ((PrintPapers) me.findQuestType(i)).resetQuest();
-                                            System.out.println("wrong quantity, try again");
-                                        }
-                                    }
-                                    break;
+                //if the I key is pressed and the player is on the leftmost side of the interior
+                if(keyCode==KeyEvent.VK_I&&me.getInsideMapX()==0&&me.getInsideX()<230){
+                    //if the player is not holding any items, is in NBL, has an active DeliverPapers quest, and has not received papers for said quest: take papers
+                    if (me.getItemNum() == 0&&me.getCurrentBuilding()==8&&me.findQuestType(1)!=null&&me.findQuestType(1).getStatus()==0) {
+                        ((DeliverPapers) me.findQuestType(1)).takeItem(0);
+                        System.out.println("took papers");
+                    }
+                }
+
+                //if the O key is pressed and the player is on the leftmost side of the interior
+                if(keyCode==KeyEvent.VK_O&&me.getInsideMapX()==0&&me.getInsideX()<230){
+                    //if there is an active DeliverPapers,OrderFood, or PrintPapers quest, the player is in its target building, and it is in the phase where its item has been taken
+                    for(int i=1;i<=3;i++){
+                        if(me.findQuestType(i)!=null&&me.findQuestType(i).getTargetBuildingNum()==me.getCurrentBuilding()&&me.findQuestType(i).getStatus()==1) {
+                            //if it is a DeliverPapers quest: place the papers
+                            if(i==1){
+                                ((DeliverQuest) me.findQuestType(i)).placeItem();
+                                System.out.println("placed papers");
+                                break;
+                            }
+                            //if it is an OrderFood quest: place the order if the order is correct and reset the quest if not
+                            if (i==2) {
+                                if (((OrderFood) me.findQuestType(i)).hasCorrectOrder()) {
+                                    ((DeliverQuest) me.findQuestType(i)).placeItem();
+                                    System.out.println("placed order");
                                 }
+                                else {
+                                    ((OrderFood) me.findQuestType(i)).resetQuest();
+                                    System.out.println("wrong order, try again");
+                                }
+                                break;
+                            }
+                            //if it is a PrintPapers quest: place the papers if the quantity is correct and reset the quest if not
+                            if(((PrintPapers) me.findQuestType(i)).hasCorrectQuantity()){
+                                ((DeliverQuest) me.findQuestType(i)).placeItem();
+                                System.out.println("placed papers");
+                            }
+                            else{
+                                ((PrintPapers) me.findQuestType(i)).resetQuest();
+                                System.out.println("wrong quantity, try again");
                             }
                         }
                     }
@@ -602,11 +639,15 @@ public class GameFrame extends JFrame implements MouseListener {
                         me.setDirection(2);
                     }
                 } else if (keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_A) {
-                    left = true;
-                    me.setDirection(3);
+                    if(minigame==null) {
+                        left = true;
+                        me.setDirection(3);
+                    }
                 } else if (keyCode == KeyEvent.VK_RIGHT || keyCode == KeyEvent.VK_D) {
-                    right = true;
-                    me.setDirection(4);
+                    if (minigame == null) {
+                        right = true;
+                        me.setDirection(4);
+                    }
                 }
             }
 
@@ -631,9 +672,6 @@ public class GameFrame extends JFrame implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("Mouse: "+MouseInfo.getPointerInfo().getLocation().getX()+","+MouseInfo.getPointerInfo().getLocation().getY());
-        System.out.println("Frame: "+GameFrame.this.getLocation().getX()+","+GameFrame.this.getLocation().getY());
-        //System.out.println((int)MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX()+","+((int)MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY()));
         //if the cursor is in the lower right portion of the menu: leave the current stall
         if(menuOptions[3].contains((int)MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX(),(int)MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY()))
             me.setCurrentStall(0);
@@ -641,7 +679,7 @@ public class GameFrame extends JFrame implements MouseListener {
         for(int i=0;i<3;i++) {
             if (menuOptions[i].contains((int) MouseInfo.getPointerInfo().getLocation().getX()-(int)GameFrame.this.getLocation().getX(), (int) MouseInfo.getPointerInfo().getLocation().getY()-(int)GameFrame.this.getLocation().getY())) {
                 //if the player is in a stall, there is an active OrderFood quest, and that quest is in the phase where the player has not yet taken an order: take the corresponding order and leave the stall
-                if (me.getCurrentStall() != 0&&me.findQuestType(2)!=null&&((DeliverQuest) me.findQuestType(2)).getStatus()==0) {
+                if (me.getCurrentStall() != 0&&me.findQuestType(2)!=null&&me.findQuestType(2).getStatus()==0) {
                     ((OrderFood) me.findQuestType(2)).takeItem(me.getCurrentStall() * 3 - (2-i));
                     System.out.println("took food order#" + (me.getCurrentStall() * 3 - (2-i)));
                     me.setCurrentStall(0);
