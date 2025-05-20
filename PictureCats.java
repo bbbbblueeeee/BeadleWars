@@ -1,5 +1,6 @@
 /**
- The Picturecats class extends quest and isa quest where the 
+ The Picturecats class extends quest and isa quest where the player is tasked to picture cats a number of times
+ and email their prof with the pictures
 
 
  @author Krystal O. Lim Tiong Soon (242615)
@@ -29,7 +30,9 @@ public class PictureCats extends Quest{
     public boolean sentEmail,justSent;
     public String[] email;
     public Player p;
-
+    /**
+     initializes variables
+     **/
     public PictureCats(Player player,int n){
         p=player;
         targetBuildingNum=1;
@@ -44,39 +47,71 @@ public class PictureCats extends Quest{
         initializeEmail1();
     }
 
+    /**
+     checks if the player sent the correct photos
+     @return boolean if they were correct or not
+     **/
     public boolean hasCorrectPhotos(){
         return takenPics==wantedPics;
     }
 
+    /**
+     increment the number of pics taken
+     **/
     public void incrementTakenPics(){
         takenPics++;
     }
 
+    /**
+     returns the number of taken pics
+     @return number of pics taken
+     **/
     public int getTakenPics(){
         return takenPics;
     }
 
+    /**
+     sends the email and sets sentemail to true
+     **/
     public void sendEmail(){
         sentEmail=true;
     }
 
+    /**
+     sets task complete to true and finishes the task
+     **/
     public void complete(){
         taskComplete=true;
     }
 
+    /**
+    gets the current keykount the player has made
+     @return number of keys pressed
+     **/
     public int getKeyCount(){
         return keyCount;
     }
 
+    /**
+     An array to contain email contents
+     @return email contents
+     **/
     public String[] getEmailArray(){
         return email;
     }
 
+    /**
+     increments the key count if the count is still below the full email length
+     **/
     public void incrementKeyCount(){
         if(keyCount<email.length-1)
             keyCount++;
     }
 
+    /**
+     gets status of the quest
+     @return numbers corresponding to the status
+     **/
     public int getStatus(){
         if(taskComplete)
             return 2;
@@ -86,14 +121,24 @@ public class PictureCats extends Quest{
             return 0;
     }
 
+    /**
+     checks if email was just sent
+     @return boolean if email was just sent
+     **/
     public boolean wasJustSent(){
         return justSent;
     }
 
+    /**
+     resets the email and sets just sent to false
+     **/
     public void resetJustSent(){
         justSent=false;
     }
 
+    /**
+     resets the quest back to its original state
+     **/
     public void resetQuest(){
         takenPics=0;
         keyCount=0;
@@ -102,10 +147,17 @@ public class PictureCats extends Quest{
         justSent=true;
     }
 
+    /**
+     gets the number of wanted pics
+     @return number of wanted pics
+     **/
     public int getWantedPics(){
         return wantedPics;
     }
 
+    /**
+     Initializes and sets up the email to be typed
+     **/
     public void initializeEmail1(){
         email=new String[87];
         email[0]="|";
