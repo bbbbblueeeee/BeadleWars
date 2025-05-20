@@ -299,8 +299,13 @@ public class GameFrame extends JFrame implements MouseListener {
                             menu = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/menu_" + me.getCurrentStall() + ".png"));
                             g2d.drawImage(menu, 0, 0, null);
                             g2d.setFont(customFont);
-                            g2d.setFont(g2d.getFont().deriveFont(35f));
-                            stall = "hi, welcome to \nchili's";
+                            g2d.setFont(g2d.getFont().deriveFont(30f));
+                            if(me.getCurrentStall()==1)
+                                stall="Hello, welcome to \nAte Kristen's \nBacsilog! What \ncan I get you?";
+                            else if(me.getCurrentStall()==2)
+                                stall="Hello, welcome to \nCFK Chicken! What \ncan I get you?";
+                            else
+                                stall="Hello, welcome to \nHunger Burger! \nWhat can I get \nyou?";
                             int i = 0;
                             for (String line : stall.split("\n")) {
                                 g2d.drawString(line, 267, 158 + i);
@@ -624,6 +629,8 @@ public class GameFrame extends JFrame implements MouseListener {
                         minigame = null;
                         System.out.println("made minigame null");
                     }
+                    else if(me.findQuestType(4)==null&&me.findQuestType(5)==null&&keyCode==KeyEvent.VK_ENTER)
+                        minigame=null;
                 }
                 //if the Enter key is pressed:
                 else if (keyCode == KeyEvent.VK_ENTER) {
@@ -863,7 +870,8 @@ public class GameFrame extends JFrame implements MouseListener {
                     if(other!=null){
                         other.setX(otherX);
                         other.setY(otherY);
-                        other.setDirection(otherDirection);
+                        if(me.getCurrentBuilding()==0&&otherBuilding==0)
+                            other.setDirection(otherDirection);
                         other.setInsideX(otherInsideX);
                         other.setInsideMapX(otherInsideMapX);
                         other.setColorNum(otherColorNum);
