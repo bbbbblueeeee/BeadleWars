@@ -65,10 +65,12 @@ public class GameCanvas extends JComponent{
                 g2d.drawString("Waiting for other player to start...", 100, 500);
             }
             if (playerID == 1) {
+                mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.getDirection() + ".png"));
                 otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
                 g2d.drawImage(mySprite, 198, 542, null);
                 g2d.drawImage(otherSprite, 342, 542, null);
             } else {
+                mySprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + me.getColorNum() + "_" + me.getDirection() + ".png"));
                 otherSprite = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/assets/player_" + other.getColorNum() + "_" + other.getDirection() + ".png"));
                 g2d.drawImage(otherSprite, 342, 542, null);
                 g2d.drawImage(mySprite, 198, 542, null);
