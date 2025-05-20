@@ -1,3 +1,26 @@
+/**
+The gameserver class acts as the server to host the clients. It handles port number, server socket, datainput and dataoutput creations.
+ It is in charge of reading client's inputs and writing them out to the other to reflect changes in real time.
+
+ @author Krystal O. Lim Tiong Soon (242615)
+ @author Francine Denise L. Lee (24537)
+ @version 20 May 2025
+
+
+ We have not discussed the Java language code in our program
+ with anyone other than our instructor or the teaching assistants
+ assigned to this course.
+
+
+ We have not used Java language code obtained from another student,
+ or any other unauthorized source, either modified or unmodified.
+
+
+ If any Java language code or documentation used in our program
+ was obtained from another source, such as a textbook or website,
+ that has been clearly noted with a proper citation in the comments
+ of our program.
+ */
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,6 +38,9 @@ public class GameServer {
     private int p1x,p1y,p1d,p1b,p1ix,p1imx,p2x,p2y,p2d,p2b,p2ix,p2imx,p1color,p2color,p1points,p2points; //x and y coords for players
     private Boolean p1start,p2start;
 
+    /**
+     initializes the variables needed for this class
+     **/
     public GameServer(){
         System.out.println("==== GAME SERVER ====");
         numPlayers = 0;
@@ -32,6 +58,9 @@ public class GameServer {
     }
 
 
+    /**
+     accepting clients aslong as the max num of players hasn't been reached and creating new threads for each one
+     **/
     public void acceptConnections() {
         try {
             System.out.println("accepting connections...");
@@ -78,16 +107,25 @@ public class GameServer {
         }
     }
 
+    /**
+     Readfromclient class implements runnable and handles the reading information from the clients
+     **/
     private class ReadFromClient implements Runnable{
 
         private int playerID;
         private DataInputStream dataIn;
-
+        /**
+            initializes the needed variables
+         **/
         public ReadFromClient (int pid, DataInputStream in){
             playerID = pid;
             dataIn = in;
             System.out.println("ReadFromClient"+playerID+"Runnable created");
         }
+
+        /**
+            runs the class
+         **/
         public void run(){
             try{
                 while (true){
@@ -123,16 +161,24 @@ public class GameServer {
         }
     }
 
+    /**
+    Writetoclient class implements runnable and writes out the information to each client
+     **/
     private class WriteToClient implements Runnable{
 
         private int playerID;
         private DataOutputStream dataOut;
-
+        /**
+        initializes needed variables
+         **/
         public WriteToClient (int pid, DataOutputStream out){
             playerID = pid;
             dataOut = out;
             System.out.println("WriteToClient"+playerID+"Runnable created");
         }
+        /**
+            runs the class
+         **/
         public void run(){
             try{
                 while (true){
@@ -175,6 +221,9 @@ public class GameServer {
             }
         }
 
+        /**
+        sends a starting message once the max number ofplayers has joined
+         **/
         public void sendStartMsg(){
             try{
                 dataOut.writeUTF("We now have 2 players...heh..");
@@ -184,6 +233,9 @@ public class GameServer {
         }
     }
 
+    /**
+        Main method to start
+     **/
     public static void main(String[] args) {
         GameServer gs = new GameServer();
         gs.acceptConnections();

@@ -1,3 +1,27 @@
+/**
+ The SendEmail is a class that extends quest. It is a type of quest where a player interacts with the laptop and sends an email.
+ this class handles regitering input of the player's keys and writing the email with the inputs.
+
+
+ @author Krystal O. Lim Tiong Soon (242615)
+ @author Francine Denise L. Lee (24537)
+ @version 20 May 2025
+
+
+ We have not discussed the Java language code in our program
+ with anyone other than our instructor or the teaching assistants
+ assigned to this course.
+
+
+ We have not used Java language code obtained from another student,
+ or any other unauthorized source, either modified or unmodified.
+
+
+ If any Java language code or documentation used in our program
+ was obtained from another source, such as a textbook or website,
+ that has been clearly noted with a proper citation in the comments
+ of our program.
+ */
 import java.awt.event.KeyEvent;
 import java.lang.reflect.Array;
 
@@ -6,7 +30,9 @@ public class SendEmail extends Quest{
     public boolean sentEmail;
     public String[][] emails;
     public Player p;
-
+    /**
+     initializes the variables needed
+     **/
     public SendEmail(Player player,int n){
         p=player;
         emailNum=n;
@@ -19,14 +45,22 @@ public class SendEmail extends Quest{
         initializeEmail1();
     }
 
+    /**
+     * sends the email, setting boolean sentemail to true
+     **/
     public void sendEmail(){
         sentEmail=true;
     }
-
+    /**
+        sets the quest as complete
+     **/
     public void complete(){
         taskComplete=true;
     }
-
+    /**
+        returns the status of the quest
+     @returns a number corresponding to the status
+     **/
     public int getStatus(){
         if(taskComplete)
             return 2;
@@ -36,19 +70,31 @@ public class SendEmail extends Quest{
             return 0;
     }
 
+    /**
+        gets the number of keys typed by the player
+     @return the number of keys types
+     **/
     public int getKeyCount(){
         return keyCount;
     }
 
+    /**
+        gets the emailarray type emails
+     **/
     public String[] getEmailArray(){
         return emails[emailNum];
     }
 
+    /**
+        increments the number of keys pressed if its beliw the final email length
+     **/
     public void incrementKeyCount(){
         if(keyCount<emails[emailNum].length-1)
             keyCount++;
     }
-
+    /**
+        initializes the contents of the email for the player to type
+     **/
     public void initializeEmail1(){
         emails[0]=new String[409];
         emails[0][0]="|";

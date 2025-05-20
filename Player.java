@@ -1,3 +1,26 @@
+/**
+ The Player class handles everything a player can do, from moving, to quest handling, to checking for out of bounds positions, and points
+
+
+ @author Krystal O. Lim Tiong Soon (242615)
+ @author Francine Denise L. Lee (24537)
+ @version 20 May 2025
+
+
+ We have not discussed the Java language code in our program
+ with anyone other than our instructor or the teaching assistants
+ assigned to this course.
+
+
+ We have not used Java language code obtained from another student,
+ or any other unauthorized source, either modified or unmodified.
+
+
+ If any Java language code or documentation used in our program
+ was obtained from another source, such as a textbook or website,
+ that has been clearly noted with a proper citation in the comments
+ of our program.
+ */
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
@@ -7,6 +30,9 @@ public class Player {
     private boolean startPressed;
     private ArrayList <Quest> quests;
 
+    /**
+        initializes the variables needed for this class
+     **/
     public Player(int a,int b,int c,int d){
         x=a;
         y=b;
@@ -24,14 +50,23 @@ public class Player {
             direction=2;
     }
 
+    /**
+        sets direction to an integer
+     @param //the directoinal value assigned to the int
+     **/
     public void setDirection(int i){
         direction=i;
     }
-
+    /**
+        gets the direction of the player
+     @return an int for the direction
+     **/
     public int getDirection(){
         return direction;
     }
-
+    /**
+        moves the player horizontally and checking whether the player is on the map or in a building
+     **/
     public void moveH(int n){
         if(currentBuilding==0) {
             prevX = x;
@@ -73,61 +108,119 @@ public class Player {
         }
     }
 
+    /**
+        moves the player vertically.
+     @param //the number to be added to the player's y coordinate
+     **/
     public void moveV(int n){
         prevY=y;
         y+=n;
     }
-
+    /**
+sets the players x coordinate
+     @param //the number to be set
+     **/
     public void setX(int n){
         x=n;
     }
 
+    /**
+    sets the players y coordinate
+     @param //the number to be set as the y coordinate
+     **/
     public void setY(int n){
         y=n;
     }
 
+    /**
+
+     sets the color
+     @param //the numerical variable assigned to the color, to determind the color
+     **/
     public void setColorNum(int n){
         colorNum=n;
     }
 
+    /**
+
+     gets the number assigned to a certain color
+     @return the number of the color
+     **/
     public int getColorNum (){
         return colorNum;
     }
-
+    /**
+    get player's x coordinate
+     @return player's x coordinate
+     **/
     public int getX(){
         return x;
     }
 
+    /**
+     get player's y coordinate
+     @return player's y coordinate
+     **/
     public int getY(){
         return y;
     }
-
+    /**
+     get player's previous x coordinate
+     @return player's previous x coordinate
+     **/
     public int getPrevX(){
         return prevX;
     }
 
+    /**
+     get player's previous y coordinate
+     @return player's previous y coordinate
+     **/
     public int getPrevY() {
         return prevY;
     }
 
+    /**
+     set player's x coordinate inside a building
+     @param //the number the coordinate is to be set as
+     **/
     public void setInsideX(int n){
         insideX=n;
     }
 
+    /**
+     set map's x coordinate inside a building
+     @param //the number the coordinate is to be set as
+     **/
     public void setInsideMapX(int n){
         insideMapX=n;
     }
 
+    /**
+     get player's x coordinate inside a building
+     @return //the number of the x coordinate
+     **/
     public int getInsideX(){
         return insideX;
     }
 
+    /**
+     get map's x coordinate inside a building
+     @return the map's x coordinate
+     **/
     public int getInsideMapX(){
         return insideMapX;
     }
 
+    /**
+     gets the current building
+     @return int corresponsinf to each building
+     **/
     public int getCurrentBuilding() {return currentBuilding;}
 
+    /**
+        sets the coordinates od the player when exiting the building to not go out of bounds
+     **/
     public void leaveBuilding(){
         if (getCurrentBuilding()==1) {
             setDirection(2);
@@ -172,10 +265,17 @@ public class Player {
         currentBuilding=0;
     }
 
+    /**
+        sets the player's point to a certain number
+     @param //the number to be set as points
+     **/
     public void setPoints(int n){
         points=n;
     }
 
+    /**
+        randomizes the assigning of quests to a player
+     **/
     public void initializeQuests(){
         for(int i=0;i<3;i++) {
             int random = (int) (Math.random() * 5) + 1;
@@ -185,6 +285,9 @@ public class Player {
         }
     }
 
+    /**
+        sets the x and y coordinates of a player when entering certain buildings so the player isn't out of bounds
+     **/
     public void enterBuilding(int playerNum,int bldgNum){
         insideX=924;
         setDirection(3);
@@ -272,25 +375,49 @@ public class Player {
         currentBuilding=bldgNum;
     }
 
+    /**
+    gets the item number
+     @return the item number
+     **/
     public int getItemNum(){return itemNum;}
 
+    /**
+        receives an item
+     @param //the number of the item to be added
+     **/
     public void receiveItem (int n)
     {
         itemNum = n;
     }
 
+    /**
+    gives an item away and sets it to 0
+     **/
     public void giveItem () {
         itemNum =0;
     }
 
+    /**
+        get the player's points
+     @return the player's points
+     **/
     public int getPoints(){
         return points;
     }
 
+    /**
+        gets a random type of quests from an arraylist
+     @return arraylist quests
+
+     **/
     public ArrayList<Quest> getQuestList(){
         return quests;
     }
 
+    /**
+        finishes a quest and marks it as completed and adds points.
+     @param //the quest to be marked as complete
+     **/
     public void finishQuest(Quest q){
         for(int i=0;i<quests.size();i++){
             if(quests.get(i).getQuestType()==q.getQuestType()){
@@ -304,14 +431,26 @@ public class Player {
         points+=q.getPoints();
     }
 
+    /**
+        gets the current stall in the cafeteria
+     @return int of current stall
+     **/
     public int getCurrentStall(){
         return currentStall;
     }
 
+    /**
+        sets the current stall to a number
+     @param //the stall tobe set as current
+     **/
     public void setCurrentStall(int n){
         currentStall=n;
     }
 
+    /**
+        finds a quest of a certain type
+     @return a quests of type n
+     **/
     public Quest findQuestType(int n){
         for (Quest q : quests) {
             if(q==null)
@@ -321,14 +460,27 @@ public class Player {
         }
         return null;
     }
+
+    /**
+        sets startpressed to a boolean
+     @param // the boolean to be set
+     **/
     public void setStartPressed(boolean b) {
         startPressed = b;
     }
 
+    /**
+        checks if the player has pressed start
+     @return boolean if the player has clicked it or not
+     **/
     public boolean getStartPressed() {
         return startPressed;
     }
 
+    /**
+        gets the current quest of the player
+     @return quest type after looking through the player's quest list
+     **/
     public Quest getCurrentQuest(){
         if (getItemNum() != 0) {
             //look through the player's quest list for DeliverPapers, OrderFood, and PrintPapers quests
@@ -342,6 +494,12 @@ public class Player {
         return null;
     }
 
+    /**
+        Looks through the player's quest list for DeliverPapers, OrderFood, and PrintPapers quests, and
+     if the target building of a completed quest is the same as the player's current building: set that quest as completed
+     and break out of the loop
+    @return quest or null
+     **/
     public Quest getCompletedQuest(){
         //look through the player's quest list for DeliverPapers, OrderFood, and PrintPapers quests
         for (int i = 1; i <= 3; i++) {
@@ -353,10 +511,18 @@ public class Player {
         return null;
     }
 
+    /**
+     sets the current buildng to a number
+     @param //the number the building is to be set as
+     **/
     public void setCurrentBuilding(int i){
         currentBuilding=i;
     }
 
+    /**
+        adds a certain quest type to the player's list
+     @param //the type of quest to be added
+     **/
     public void addQuest(int t){
         if (t == 1) {
             int i=(int)(Math.random()*3+5);
